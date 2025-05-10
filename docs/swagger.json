@@ -1,0 +1,1207 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for managing passengers and taxists in a ride-sharing application.",
+        "title": "Ride-Sharing Backend API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "192.168.55.42:8000",
+    "basePath": "/",
+    "paths": {
+        "/distances": {
+            "get": {
+                "description": "get all distances",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Place"
+                ],
+                "summary": "GET distances",
+                "responses": {}
+            },
+            "post": {
+                "description": "Add a new distance between two places",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Place"
+                ],
+                "summary": "Add a new distance between two places",
+                "parameters": [
+                    {
+                        "description": "Distance data",
+                        "name": "distance",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DistanceRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/makes": {
+            "get": {
+                "description": "get all car makes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Car details"
+                ],
+                "summary": "GET car makes",
+                "responses": {}
+            },
+            "post": {
+                "description": "add a new car make",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Car details"
+                ],
+                "summary": "POST a new car make",
+                "parameters": [
+                    {
+                        "description": "Car details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.MakesRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/models": {
+            "post": {
+                "description": "add a new car model",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Car details"
+                ],
+                "summary": "POST a new car model",
+                "parameters": [
+                    {
+                        "description": "Car details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ModelsRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/models/{make_id}": {
+            "get": {
+                "description": "Retrieve all car models for a given make ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Car details"
+                ],
+                "summary": "Get car models by make ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Make ID",
+                        "name": "make_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/passenger/login": {
+            "post": {
+                "description": "Initiates login by sending a verification code to the passenger's phone number. Checks if the phone is registered and logs the code.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Passenger"
+                ],
+                "summary": "Initiate passenger login",
+                "parameters": [
+                    {
+                        "description": "Passenger login details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/passenger/register": {
+            "post": {
+                "description": "Registers a new passenger with a full name and phone number, sending a verification code. Validates input, checks for duplicate phone numbers, and logs the code (replace with SMS in production).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Passenger"
+                ],
+                "summary": "Register a new passenger",
+                "parameters": [
+                    {
+                        "description": "Passenger registration details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PassengerRegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/places": {
+            "get": {
+                "description": "get all places",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Place"
+                ],
+                "summary": "GET car places",
+                "responses": {}
+            },
+            "post": {
+                "description": "add a new place",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Place"
+                ],
+                "summary": "POST a new place",
+                "parameters": [
+                    {
+                        "description": "Announcement",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PlacesRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns user information for an authenticated user. Requires a valid JWT token in the Authorization header.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Access protected resource",
+                "responses": {}
+            }
+        },
+        "/protected/announcements": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "add a ugur",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "POST a new Ugur for taxist",
+                "parameters": [
+                    {
+                        "description": "Ugur",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.TaxistAnnouncmentRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/distances/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "DELETE distance by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Place"
+                ],
+                "summary": "DELETE distance",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Distance ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/favourites": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all passenger favourites",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get all specific passenger favourites",
+                "responses": {}
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "add a new passenger favourite",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "POST a new passenger favourite",
+                "parameters": [
+                    {
+                        "description": "Announcement",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.Favourite"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/makes/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "DELETE make by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Car details"
+                ],
+                "summary": "DELETE make",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Make ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/models/{model_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "DELETE model by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Car details"
+                ],
+                "summary": "DELETE model",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Model ID",
+                        "name": "model_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/passenger-profile": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve passenger",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get passenger profile for passenger user",
+                "responses": {}
+            }
+        },
+        "/protected/places/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "DELETE place by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Place"
+                ],
+                "summary": "DELETE place",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Place ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/reserve-packages/{taxi_ann_id}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "add a new reserving package",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "POST a new reserving package for passenger user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Ugur ID",
+                        "name": "taxi_ann_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reserve Packages",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ReservePackages"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/reserve-passengers/{taxi_ann_id}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "add a new reserving passenger",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "POST a new reserving passenger for passenger user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Ugur ID",
+                        "name": "taxi_ann_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reserve Passenger",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PostReservePassengers"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/reverse-details/{reverse_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all taxist reversed Details by given reverse ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get all specific taxist reversed Details by reverse_id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Reverse ID",
+                        "name": "reverse_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/taxist-announcements/{departed}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all taxist announcements by given departed",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get all specific taxist announcements by departed",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Departed",
+                        "name": "departed",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/taxist-comments/{taxist_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all taxist comments by given taxist ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get all specific taxist comments by taxist_id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Taxist ID",
+                        "name": "taxist_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "add a new comment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "POST a new comment for passenger user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Taxist ID",
+                        "name": "taxist_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Passenger Comment",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PostComment"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/taxist-departed/{taxi_ann_id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates a taxist's announcement department by taxi_ann_id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Update taxist announcement department",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Announcement ID",
+                        "name": "taxi_ann_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/taxist-notifications/{taxist_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all taxist notifications by given taxist_id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get all specific taxist notifications by taxist_id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Taxist ID",
+                        "name": "taxist_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/taxist-rating/{taxist_id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates a taxist's rating by taxist_id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Update taxist rating",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Taxist ID",
+                        "name": "taxist_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Taxist rating details",
+                        "name": "taxist_rating",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TaxistRating"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/taxists/{taxist_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve taxist by given taxist_id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get taxist by taxist_id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Taxist ID",
+                        "name": "taxist_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/ugurlar": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a paginated list of all ugurlar",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get all ugurlar",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page (default: 10, max: 100)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/ugurlar/{ugur_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve ugur by given ugur_id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get ugur by ugur_id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Ugur ID",
+                        "name": "ugur_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/taxist/login": {
+            "post": {
+                "description": "Initiates login by sending a verification code to the taxist's phone number. Checks if the phone is registered and logs the code.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Taxist"
+                ],
+                "summary": "Initiate taxist login",
+                "parameters": [
+                    {
+                        "description": "Taxist login details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/taxist/register": {
+            "post": {
+                "description": "Registers a new taxist with personal and vehicle details, sending a verification code. Validates input, checks for duplicate phone numbers, and logs the code.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Taxist"
+                ],
+                "summary": "Register a new taxist",
+                "parameters": [
+                    {
+                        "description": "Taxist registration details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TaxistRegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/verify": {
+            "post": {
+                "description": "Verifies a phone number using a 4-digit code for passengers or taxists, issuing a JWT token upon success. Deletes the used code.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Passenger",
+                    "Taxist"
+                ],
+                "summary": "Verify phone number",
+                "parameters": [
+                    {
+                        "description": "Verification details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.VerifyCodeRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    },
+    "definitions": {
+        "handlers.Favourite": {
+            "type": "object",
+            "properties": {
+                "taxist_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handlers.LoginRequest": {
+            "type": "object",
+            "required": [
+                "phone"
+            ],
+            "properties": {
+                "phone": {
+                    "type": "string",
+                    "example": "+12345678901"
+                }
+            }
+        },
+        "handlers.MakesRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "Toyota"
+                }
+            }
+        },
+        "handlers.ModelsRequest": {
+            "type": "object",
+            "required": [
+                "make_id",
+                "name"
+            ],
+            "properties": {
+                "make_id": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Camry"
+                }
+            }
+        },
+        "handlers.PassengerPeople": {
+            "type": "object",
+            "properties": {
+                "full_name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.PassengerRegisterRequest": {
+            "type": "object",
+            "required": [
+                "full_name",
+                "phone"
+            ],
+            "properties": {
+                "full_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "+12345678901"
+                }
+            }
+        },
+        "handlers.PlacesRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "Ashgabat"
+                }
+            }
+        },
+        "handlers.PostComment": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string",
+                    "example": ""
+                }
+            }
+        },
+        "handlers.PostReservePassengers": {
+            "type": "object",
+            "required": [
+                "package",
+                "passengers"
+            ],
+            "properties": {
+                "package": {
+                    "type": "string"
+                },
+                "passengers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.PassengerPeople"
+                    }
+                }
+            }
+        },
+        "handlers.TaxistRating": {
+            "type": "object",
+            "required": [
+                "rating"
+            ],
+            "properties": {
+                "rating": {
+                    "type": "number",
+                    "example": 4
+                }
+            }
+        },
+        "handlers.TaxistRegisterRequest": {
+            "type": "object",
+            "required": [
+                "car_make",
+                "car_model",
+                "car_number",
+                "car_year",
+                "full_name",
+                "phone"
+            ],
+            "properties": {
+                "car_make": {
+                    "type": "string",
+                    "example": "Toyota"
+                },
+                "car_model": {
+                    "type": "string",
+                    "example": "Camry"
+                },
+                "car_number": {
+                    "type": "string",
+                    "example": "ABC123"
+                },
+                "car_year": {
+                    "type": "integer",
+                    "maximum": 2026,
+                    "minimum": 1900,
+                    "example": 2020
+                },
+                "full_name": {
+                    "type": "string",
+                    "example": "Jane Smith"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "+12345678902"
+                }
+            }
+        },
+        "handlers.VerifyCodeRequest": {
+            "type": "object",
+            "required": [
+                "code",
+                "phone"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "1234"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "+12345678901"
+                }
+            }
+        },
+        "models.AnnouncementType": {
+            "type": "string",
+            "enum": [
+                "person",
+                "package",
+                "person_and_package"
+            ],
+            "x-enum-varnames": [
+                "Person",
+                "Package",
+                "PersonAndPackage"
+            ]
+        },
+        "models.DistanceRequest": {
+            "type": "object",
+            "required": [
+                "distance",
+                "from_place",
+                "to_place"
+            ],
+            "properties": {
+                "distance": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 100
+                },
+                "from_place": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "to_place": {
+                    "type": "integer",
+                    "example": 2
+                }
+            }
+        },
+        "models.ReservePackages": {
+            "type": "object",
+            "properties": {
+                "about_package": {
+                    "type": "string"
+                },
+                "package_reciever": {
+                    "type": "string"
+                },
+                "package_sender": {
+                    "type": "string"
+                },
+                "reciever_phone": {
+                    "type": "string"
+                },
+                "sender_phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.TaxistAnnouncmentRequest": {
+            "type": "object",
+            "required": [
+                "depart_date",
+                "depart_time",
+                "from_place",
+                "space",
+                "to_place",
+                "type"
+            ],
+            "properties": {
+                "depart_date": {
+                    "type": "string",
+                    "example": "2025-01-01"
+                },
+                "depart_time": {
+                    "type": "string",
+                    "example": "15:30:00"
+                },
+                "from_place": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "space": {
+                    "type": "integer",
+                    "example": 4
+                },
+                "to_place": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.AnnouncementType"
+                        }
+                    ],
+                    "example": "submit one of person, package or person_and_package"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

@@ -1,0 +1,804 @@
+basePath: /
+definitions:
+  handlers.Favourite:
+    properties:
+      taxist_id:
+        type: integer
+    type: object
+  handlers.LoginRequest:
+    properties:
+      phone:
+        example: "+12345678901"
+        type: string
+    required:
+    - phone
+    type: object
+  handlers.MakesRequest:
+    properties:
+      name:
+        example: Toyota
+        type: string
+    required:
+    - name
+    type: object
+  handlers.ModelsRequest:
+    properties:
+      make_id:
+        example: 0
+        type: integer
+      name:
+        example: Camry
+        type: string
+    required:
+    - make_id
+    - name
+    type: object
+  handlers.PassengerPeople:
+    properties:
+      full_name:
+        type: string
+      phone:
+        type: string
+    type: object
+  handlers.PassengerRegisterRequest:
+    properties:
+      full_name:
+        example: John Doe
+        type: string
+      phone:
+        example: "+12345678901"
+        type: string
+    required:
+    - full_name
+    - phone
+    type: object
+  handlers.PlacesRequest:
+    properties:
+      name:
+        example: Ashgabat
+        type: string
+    required:
+    - name
+    type: object
+  handlers.PostComment:
+    properties:
+      comment:
+        example: ""
+        type: string
+    type: object
+  handlers.PostReservePassengers:
+    properties:
+      package:
+        type: string
+      passengers:
+        items:
+          $ref: '#/definitions/handlers.PassengerPeople'
+        type: array
+    required:
+    - package
+    - passengers
+    type: object
+  handlers.TaxistRating:
+    properties:
+      rating:
+        example: 4
+        type: number
+    required:
+    - rating
+    type: object
+  handlers.TaxistRegisterRequest:
+    properties:
+      car_make:
+        example: Toyota
+        type: string
+      car_model:
+        example: Camry
+        type: string
+      car_number:
+        example: ABC123
+        type: string
+      car_year:
+        example: 2020
+        maximum: 2026
+        minimum: 1900
+        type: integer
+      full_name:
+        example: Jane Smith
+        type: string
+      phone:
+        example: "+12345678902"
+        type: string
+    required:
+    - car_make
+    - car_model
+    - car_number
+    - car_year
+    - full_name
+    - phone
+    type: object
+  handlers.VerifyCodeRequest:
+    properties:
+      code:
+        example: "1234"
+        type: string
+      phone:
+        example: "+12345678901"
+        type: string
+    required:
+    - code
+    - phone
+    type: object
+  models.AnnouncementType:
+    enum:
+    - person
+    - package
+    - person_and_package
+    type: string
+    x-enum-varnames:
+    - Person
+    - Package
+    - PersonAndPackage
+  models.DistanceRequest:
+    properties:
+      distance:
+        example: 100
+        minimum: 1
+        type: integer
+      from_place:
+        example: 1
+        type: integer
+      to_place:
+        example: 2
+        type: integer
+    required:
+    - distance
+    - from_place
+    - to_place
+    type: object
+  models.ReservePackages:
+    properties:
+      about_package:
+        type: string
+      package_reciever:
+        type: string
+      package_sender:
+        type: string
+      reciever_phone:
+        type: string
+      sender_phone:
+        type: string
+    type: object
+  models.TaxistAnnouncmentRequest:
+    properties:
+      depart_date:
+        example: "2025-01-01"
+        type: string
+      depart_time:
+        example: "15:30:00"
+        type: string
+      from_place:
+        example: 0
+        type: integer
+      space:
+        example: 4
+        type: integer
+      to_place:
+        example: 0
+        type: integer
+      type:
+        allOf:
+        - $ref: '#/definitions/models.AnnouncementType'
+        example: submit one of person, package or person_and_package
+    required:
+    - depart_date
+    - depart_time
+    - from_place
+    - space
+    - to_place
+    - type
+    type: object
+host: 192.168.55.42:8000
+info:
+  contact: {}
+  description: API for managing passengers and taxists in a ride-sharing application.
+  title: Ride-Sharing Backend API
+  version: "1.0"
+paths:
+  /distances:
+    get:
+      description: get all distances
+      produces:
+      - application/json
+      responses: {}
+      summary: GET distances
+      tags:
+      - Place
+    post:
+      consumes:
+      - application/json
+      description: Add a new distance between two places
+      parameters:
+      - description: Distance data
+        in: body
+        name: distance
+        required: true
+        schema:
+          $ref: '#/definitions/models.DistanceRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Add a new distance between two places
+      tags:
+      - Place
+  /makes:
+    get:
+      description: get all car makes
+      produces:
+      - application/json
+      responses: {}
+      summary: GET car makes
+      tags:
+      - Car details
+    post:
+      consumes:
+      - application/json
+      description: add a new car make
+      parameters:
+      - description: Car details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.MakesRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: POST a new car make
+      tags:
+      - Car details
+  /models:
+    post:
+      consumes:
+      - application/json
+      description: add a new car model
+      parameters:
+      - description: Car details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ModelsRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: POST a new car model
+      tags:
+      - Car details
+  /models/{make_id}:
+    get:
+      description: Retrieve all car models for a given make ID
+      parameters:
+      - description: Make ID
+        in: path
+        name: make_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Get car models by make ID
+      tags:
+      - Car details
+  /passenger/login:
+    post:
+      consumes:
+      - application/json
+      description: Initiates login by sending a verification code to the passenger's
+        phone number. Checks if the phone is registered and logs the code.
+      parameters:
+      - description: Passenger login details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Initiate passenger login
+      tags:
+      - Passenger
+  /passenger/register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new passenger with a full name and phone number, sending
+        a verification code. Validates input, checks for duplicate phone numbers,
+        and logs the code (replace with SMS in production).
+      parameters:
+      - description: Passenger registration details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PassengerRegisterRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Register a new passenger
+      tags:
+      - Passenger
+  /places:
+    get:
+      description: get all places
+      produces:
+      - application/json
+      responses: {}
+      summary: GET car places
+      tags:
+      - Place
+    post:
+      consumes:
+      - application/json
+      description: add a new place
+      parameters:
+      - description: Announcement
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PlacesRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: POST a new place
+      tags:
+      - Place
+  /protected:
+    get:
+      description: Returns user information for an authenticated user. Requires a
+        valid JWT token in the Authorization header.
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Access protected resource
+      tags:
+      - Authentication
+  /protected/announcements:
+    post:
+      consumes:
+      - application/json
+      description: add a ugur
+      parameters:
+      - description: Ugur
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.TaxistAnnouncmentRequest'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: POST a new Ugur for taxist
+      tags:
+      - Announcement
+  /protected/distances/{id}:
+    delete:
+      description: DELETE distance by id
+      parameters:
+      - description: Distance ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: DELETE distance
+      tags:
+      - Place
+  /protected/favourites:
+    get:
+      description: Retrieve all passenger favourites
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get all specific passenger favourites
+      tags:
+      - Announcement
+    post:
+      consumes:
+      - application/json
+      description: add a new passenger favourite
+      parameters:
+      - description: Announcement
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.Favourite'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: POST a new passenger favourite
+      tags:
+      - Announcement
+  /protected/makes/{id}:
+    delete:
+      description: DELETE make by id
+      parameters:
+      - description: Make ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: DELETE make
+      tags:
+      - Car details
+  /protected/models/{model_id}:
+    delete:
+      description: DELETE model by id
+      parameters:
+      - description: Model ID
+        in: path
+        name: model_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: DELETE model
+      tags:
+      - Car details
+  /protected/passenger-profile:
+    get:
+      description: Retrieve passenger
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get passenger profile for passenger user
+      tags:
+      - Announcement
+  /protected/places/{id}:
+    delete:
+      description: DELETE place by id
+      parameters:
+      - description: Place ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: DELETE place
+      tags:
+      - Place
+  /protected/reserve-packages/{taxi_ann_id}:
+    post:
+      consumes:
+      - application/json
+      description: add a new reserving package
+      parameters:
+      - description: Ugur ID
+        in: path
+        name: taxi_ann_id
+        required: true
+        type: string
+      - description: Reserve Packages
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReservePackages'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: POST a new reserving package for passenger user
+      tags:
+      - Announcement
+  /protected/reserve-passengers/{taxi_ann_id}:
+    post:
+      consumes:
+      - application/json
+      description: add a new reserving passenger
+      parameters:
+      - description: Ugur ID
+        in: path
+        name: taxi_ann_id
+        required: true
+        type: string
+      - description: Reserve Passenger
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PostReservePassengers'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: POST a new reserving passenger for passenger user
+      tags:
+      - Announcement
+  /protected/reverse-details/{reverse_id}:
+    get:
+      description: Retrieve all taxist reversed Details by given reverse ID
+      parameters:
+      - description: Reverse ID
+        in: path
+        name: reverse_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get all specific taxist reversed Details by reverse_id
+      tags:
+      - Announcement
+  /protected/taxist-announcements/{departed}:
+    get:
+      description: Retrieve all taxist announcements by given departed
+      parameters:
+      - description: Departed
+        in: path
+        name: departed
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get all specific taxist announcements by departed
+      tags:
+      - Announcement
+  /protected/taxist-comments/{taxist_id}:
+    get:
+      description: Retrieve all taxist comments by given taxist ID
+      parameters:
+      - description: Taxist ID
+        in: path
+        name: taxist_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get all specific taxist comments by taxist_id
+      tags:
+      - Announcement
+    post:
+      consumes:
+      - application/json
+      description: add a new comment
+      parameters:
+      - description: Taxist ID
+        in: path
+        name: taxist_id
+        required: true
+        type: string
+      - description: Passenger Comment
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PostComment'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: POST a new comment for passenger user
+      tags:
+      - Announcement
+  /protected/taxist-departed/{taxi_ann_id}:
+    put:
+      consumes:
+      - application/json
+      description: Updates a taxist's announcement department by taxi_ann_id
+      parameters:
+      - description: Announcement ID
+        in: path
+        name: taxi_ann_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Update taxist announcement department
+      tags:
+      - Announcement
+  /protected/taxist-notifications/{taxist_id}:
+    get:
+      description: Retrieve all taxist notifications by given taxist_id
+      parameters:
+      - description: Taxist ID
+        in: path
+        name: taxist_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get all specific taxist notifications by taxist_id
+      tags:
+      - Announcement
+  /protected/taxist-rating/{taxist_id}:
+    put:
+      consumes:
+      - application/json
+      description: Updates a taxist's rating by taxist_id
+      parameters:
+      - description: Taxist ID
+        in: path
+        name: taxist_id
+        required: true
+        type: integer
+      - description: Taxist rating details
+        in: body
+        name: taxist_rating
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TaxistRating'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Update taxist rating
+      tags:
+      - Announcement
+  /protected/taxists/{taxist_id}:
+    get:
+      description: Retrieve taxist by given taxist_id
+      parameters:
+      - description: Taxist ID
+        in: path
+        name: taxist_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get taxist by taxist_id
+      tags:
+      - Announcement
+  /protected/ugurlar:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a paginated list of all ugurlar
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Number of items per page (default: 10, max: 100)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get all ugurlar
+      tags:
+      - Announcement
+  /protected/ugurlar/{ugur_id}:
+    get:
+      description: Retrieve ugur by given ugur_id
+      parameters:
+      - description: Ugur ID
+        in: path
+        name: ugur_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get ugur by ugur_id
+      tags:
+      - Announcement
+  /taxist/login:
+    post:
+      consumes:
+      - application/json
+      description: Initiates login by sending a verification code to the taxist's
+        phone number. Checks if the phone is registered and logs the code.
+      parameters:
+      - description: Taxist login details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Initiate taxist login
+      tags:
+      - Taxist
+  /taxist/register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new taxist with personal and vehicle details, sending
+        a verification code. Validates input, checks for duplicate phone numbers,
+        and logs the code.
+      parameters:
+      - description: Taxist registration details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TaxistRegisterRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Register a new taxist
+      tags:
+      - Taxist
+  /verify:
+    post:
+      consumes:
+      - application/json
+      description: Verifies a phone number using a 4-digit code for passengers or
+        taxists, issuing a JWT token upon success. Deletes the used code.
+      parameters:
+      - description: Verification details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.VerifyCodeRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Verify phone number
+      tags:
+      - Passenger
+      - Taxist
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
