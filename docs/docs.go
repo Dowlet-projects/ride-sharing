@@ -411,24 +411,6 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/protected/passenger-profile": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Retrieve passenger",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Announcement"
-                ],
-                "summary": "Get passenger profile for passenger user",
-                "responses": {}
-            }
-        },
         "/protected/places/{id}": {
             "delete": {
                 "security": [
@@ -453,6 +435,24 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
+                "responses": {}
+            }
+        },
+        "/protected/profile": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get user profile",
                 "responses": {}
             }
         },
@@ -743,33 +743,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handlers.TaxistRating"
                         }
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/protected/taxists/{taxist_id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Retrieve taxist by given taxist_id",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Announcement"
-                ],
-                "summary": "Get taxist by taxist_id",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Taxist ID",
-                        "name": "taxist_id",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {}
@@ -1215,7 +1188,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "192.168.55.42:8000",
+	Host:             "192.168.55.42:8080",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Ride-Sharing Backend API",

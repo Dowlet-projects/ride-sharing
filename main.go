@@ -1,13 +1,7 @@
-// main.go
-// Entry point for the ride-sharing backend
-
-// main.go
-// Entry point for the ride-sharing backend
-
 // @title Ride-Sharing Backend API
 // @version 1.0
 // @description API for managing passengers and taxists in a ride-sharing application.
-// @host 192.168.55.42:8000
+// @host 192.168.55.42:8080
 // @BasePath /
 // @securityDefinitions.apikey BearerAuth
 // @in header
@@ -53,7 +47,7 @@ func main() {
 	router.PathPrefix("/docs/").Handler(http.StripPrefix("/docs/", http.FileServer(http.Dir("docs"))))
 
 	// Specify IP address and port
-	addr := "0.0.0.0:8000" // Bind to all interfaces; replace with specific IP like "192.168.1.100:8000" if needed
+	addr := "0.0.0.0:8080" // Bind to all interfaces; replace with specific IP like "192.168.1.100:8080" if needed
 	log.Printf("Server starting on http://%s", addr)
 	if err := http.ListenAndServe(addr, router); err != nil {
 		log.Fatalf("Server failed: %v", err)

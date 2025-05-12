@@ -197,7 +197,7 @@ definitions:
     - to_place
     - type
     type: object
-host: 192.168.55.42:8000
+host: 192.168.55.42:8080
 info:
   contact: {}
   description: API for managing passengers and taxists in a ride-sharing application.
@@ -467,17 +467,6 @@ paths:
       summary: DELETE model
       tags:
       - Car details
-  /protected/passenger-profile:
-    get:
-      description: Retrieve passenger
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - BearerAuth: []
-      summary: Get passenger profile for passenger user
-      tags:
-      - Announcement
   /protected/places/{id}:
     delete:
       description: DELETE place by id
@@ -495,6 +484,17 @@ paths:
       summary: DELETE place
       tags:
       - Place
+  /protected/profile:
+    get:
+      description: Retrieve user
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get user profile
+      tags:
+      - Announcement
   /protected/reserve-packages/{taxi_ann_id}:
     post:
       consumes:
@@ -679,23 +679,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Update taxist rating
-      tags:
-      - Announcement
-  /protected/taxists/{taxist_id}:
-    get:
-      description: Retrieve taxist by given taxist_id
-      parameters:
-      - description: Taxist ID
-        in: path
-        name: taxist_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - BearerAuth: []
-      summary: Get taxist by taxist_id
       tags:
       - Announcement
   /protected/ugurlar:

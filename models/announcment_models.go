@@ -122,6 +122,7 @@ type PassengerProfile struct {
 	ID int `json:"id"`
 	FullName string `json:"full_name"`
 	Phone string `json:"phone"`
+	UserType string `json:"user_type"`
 }
 
 

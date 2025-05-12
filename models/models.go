@@ -35,6 +35,7 @@ type Taxist struct {
 	CarYear   int       `json:"car_year"`
 	CarNumber string    `json:"car_number"`
 	Rating    float32   `json:"rating"`
+	UserType  string `json:"user_type"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
