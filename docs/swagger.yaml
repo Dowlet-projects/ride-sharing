@@ -197,7 +197,7 @@ definitions:
     - to_place
     - type
     type: object
-host: 192.168.55.42:8080
+host: 192.168.55.42:8000
 info:
   contact: {}
   description: API for managing passengers and taxists in a ride-sharing application.
@@ -685,7 +685,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve a paginated list of all ugurlar
+      description: Retrieve a paginated list of ugurlar filtered by optional query
+        parameters
       parameters:
       - description: 'Page number (default: 1)'
         in: query
@@ -695,6 +696,38 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Departure date in YYYY-MM-DD format
+        in: query
+        name: date
+        type: string
+      - description: Departure place ID
+        in: query
+        name: from_place
+        type: integer
+      - description: Destination place ID
+        in: query
+        name: to_place
+        type: integer
+      - description: Car make name
+        in: query
+        name: car_make
+        type: string
+      - description: Car model name
+        in: query
+        name: car_model
+        type: string
+      - description: Space
+        in: query
+        name: space
+        type: integer
+      - description: Rating
+        in: query
+        name: rating
+        type: integer
+      - description: Passenger type
+        in: query
+        name: passenger_type
+        type: string
       produces:
       - application/json
       responses: {}

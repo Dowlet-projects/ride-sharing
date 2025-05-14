@@ -1,20 +1,19 @@
 package handlers
 
 import (
-
-	"net/http"
 	"encoding/json"
-	"ride-sharing/models"
 	"fmt"
-	"github.com/gorilla/mux"
-	"strconv"
+	"net/http"
+	"regexp"
+	"ride-sharing/models"
 	"ride-sharing/utils"
+	"strconv"
+	"strings"
+
+	"github.com/gorilla/mux"
 )
 
-
-
-
-//CreateAnnouncement handles POST /protected/announcements
+// CreateAnnouncement handles POST /protected/announcements
 // @Summary POST a new Ugur for taxist
 // @Description add a ugur
 // @Tags Announcement
@@ -31,7 +30,6 @@ func (h *App) CreateAnnouncement(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := claims.UserID
-	fmt.Println(userID)
 	var taxistAnn models.TaxistAnnouncement
 	if err:=json.NewDecoder(r.Body).Decode(&taxistAnn); err !=nil {
 		fmt.Println(err)
@@ -176,92 +174,183 @@ func (h *App) CreateReservePackages(w http.ResponseWriter, r *http.Request) {
 }
 
 
-// Success 200 {object} object{places=[]models.Place,page=int,limit=int,total=int,total_pages=int} "Paginated list of places"
-// Failure 500 {string} string "Server error"
 
 // GetAllUgurlar handles GET /protected/ugurlar
 // @Summary Get all ugurlar
-// @Description Retrieve a paginated list of all ugurlar
+// @Description Retrieve a paginated list of ugurlar filtered by optional query parameters
 // @Tags Announcement
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param page query int false "Page number (default: 1)"
-// @Param limit query int false "Number of items per page (default: 10, max: 100)"
+// @Param page query int false "Page number (default: 1)" example=1
+// @Param limit query int false "Number of items per page (default: 10, max: 100)" example=10
+// @Param date query string false "Departure date in YYYY-MM-DD format" format=date example="2025-05-12"
+// @Param from_place query int false "Departure place ID" example=1
+// @Param to_place query int false "Destination place ID" example=2
+// @Param car_make query string false "Car make name" example=3
+// @Param car_model query string false "Car model name" example=4
+// @Param space query int false "Space" example=3
+// @Param rating query int false "Rating" example=3
+// @Param passenger_type query string false "Passenger type" example="passenger"
 // @Router /protected/ugurlar [get]
 func (h *App) GetAllUgurlar(w http.ResponseWriter, r *http.Request) {
-
 	const defaultPage = 1
 	const defaultLimit = 10
 	const maxLimit = 100
 
+	// Parse query parameters
 	pageStr := r.URL.Query().Get("page")
 	limitStr := r.URL.Query().Get("limit")
+	dateStr := r.URL.Query().Get("date")
+	fromPlaceStr := r.URL.Query().Get("from_place")
+	toPlaceStr := r.URL.Query().Get("to_place")
+	makeIDStr := r.URL.Query().Get("car_make")
+	modelIDStr := r.URL.Query().Get("car_model")
+	typeStr := r.URL.Query().Get("passenger_type")
+	spaceStr := r.URL.Query().Get("space")
+	ratingStr := r.URL.Query().Get("rating")
 
+	fmt.Println(typeStr)
+
+	// Parse and validate page
 	page, err := strconv.Atoi(pageStr)
 	if err != nil || page < 1 {
 		page = defaultPage
 	}
 
+	// Parse and validate limit
 	limit, err := strconv.Atoi(limitStr)
-
 	if err != nil || limit < 1 {
 		limit = defaultLimit
 	}
-
 	if limit > maxLimit {
 		limit = maxLimit
 	}
 
-	offset := ( page - 1 ) * limit
+	offset := (page - 1) * limit
 
-	rows, err := h.DB.Query("SELECT id, taxist_id, depart_date, depart_time, space, distance, type, full_name, car_make, car_model, car_year, car_number, from_place, to_place, rating FROM ugurlar LIMIT ? OFFSET ?", limit, offset)
+	// Build the WHERE clause dynamically
+	query := `SELECT id, taxist_id, depart_date, depart_time, space, distance, type, full_name, car_make, car_model, 
+	car_year, car_number, from_place, to_place, rating FROM ugurlar WHERE id IN (SELECT id FROM taxist_announcements_filter`
+	countQuery := "SELECT COUNT(*) FROM ugurlar"
+	var conditions []string
+	var args []interface{}
 
+	// Add filters based on provided parameters
+	if dateStr != "" {
+		if matched, _ := regexp.MatchString(`^\d{4}-\d{2}-\d{2}$`, dateStr); matched {
+			conditions = append(conditions, "depart_date = ?")
+			args = append(args, dateStr)
+		} else {
+			http.Error(w, "Invalid date format. Use YYYY-MM-DD", http.StatusBadRequest)
+			return
+		}
+	}
+	if fromPlaceStr != "" {
+		fromPlace, err := strconv.Atoi(fromPlaceStr)
+		if err == nil {
+			conditions = append(conditions, "from_place = ?")
+			args = append(args, fromPlace)
+		}
+	}
+	if toPlaceStr != "" {
+		toPlace, err := strconv.Atoi(toPlaceStr)
+		if err == nil {
+			conditions = append(conditions, "to_place = ?")
+			args = append(args, toPlace)
+		}
+	}
+	if makeIDStr != "" {
+		conditions = append(conditions, "car_make = ?")
+		args = append(args, makeIDStr)
+	}
+
+	if modelIDStr != "" {
+		conditions = append(conditions, "car_model = ?")
+		args = append(args, modelIDStr)
+	}
+	if spaceStr != "" {
+		space, err := strconv.Atoi(spaceStr)
+		if err == nil {
+			conditions = append(conditions, "space = ?")
+			args = append(args, space)
+		}
+	}
+	if typeStr != "" {
+		conditions = append(conditions, "type = ?")
+		args = append(args, typeStr)
+	}
+
+	if ratingStr != "" {
+		rating, err := strconv.Atoi(ratingStr)
+		if err == nil {
+			conditions = append(conditions, "rating BETWEEN ? AND ?")
+			args = append(args, rating, rating+1)
+		}
+	}
+
+	// Append WHERE clause if there are conditions
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
+		countQuery += " WHERE " + strings.Join(conditions, " AND ")
+	}
+
+	// Append LIMIT and OFFSET
+	query += ") LIMIT ? OFFSET ?"
+	args = append(args, limit, offset)
+
+	// Execute the query
+	rows, err := h.DB.Query(query, args...)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Server error", http.StatusInternalServerError)
 		return
 	}
-
 	defer rows.Close()
 
-	var totalAnnouncements int
-
-	err = h.DB.QueryRow("SELECT COUNT(*) FROM ugurlar").Scan(&totalAnnouncements)
-
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Server error", http.StatusInternalServerError)
-		return
-	}
-
+	// Fetch ugurlar
 	var ugurlar []models.Ugur = []models.Ugur{}
-
 	for rows.Next() {
 		var ugur models.Ugur
-
-		if err := rows.Scan(&ugur.ID, &ugur.TaxistID, &ugur.DepartDate, &ugur.DepartTime, &ugur.Space, 
-			&ugur.Distance, &ugur.Type, &ugur.FullName, &ugur.CarMake, &ugur.CarModel, &ugur.CarYear, 
+		if err := rows.Scan(&ugur.ID, &ugur.TaxistID, &ugur.DepartDate, &ugur.DepartTime, &ugur.Space,
+			&ugur.Distance, &ugur.Type, &ugur.FullName, &ugur.CarMake, &ugur.CarModel, &ugur.CarYear,
 			&ugur.CarNumber, &ugur.FromPlace, &ugur.ToPlace, &ugur.Rating); err != nil {
-				http.Error(w, "Server error", http.StatusInternalServerError)
-				return
+			fmt.Println(err)
+			http.Error(w, "Server error", http.StatusInternalServerError)
+			return
 		}
-
 		ugurlar = append(ugurlar, ugur)
 	}
 
+	// Check for errors during row iteration
+	if err := rows.Err(); err != nil {
+		fmt.Println(err)
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+
+	// Get total count with filters
+	var totalAnnouncements int
+	err = h.DB.QueryRow(countQuery, args[:len(args)-2]...).Scan(&totalAnnouncements)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare response
 	response := struct {
-		Ugurlar []models.Ugur `json:"ugurlar"`
-		Page int `json:"page"`
-		Limit int `json:"limit"`
-		Total int `json:"total"`
-		TotalPages int `json:"total_pages"`
+		Ugurlar     []models.Ugur `json:"ugurlar"`
+		Page        int           `json:"page"`
+		Limit       int           `json:"limit"`
+		Total       int           `json:"total"`
+		TotalPages  int           `json:"total_pages"`
 	}{
-		Ugurlar: ugurlar,
-		Page: page,
-		Limit: limit,
-		Total: totalAnnouncements,
-		TotalPages: (totalAnnouncements +limit -1) / limit,
+		Ugurlar:    ugurlar,
+		Page:       page,
+		Limit:      limit,
+		Total:      totalAnnouncements,
+		TotalPages: (totalAnnouncements + limit - 1) / limit,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

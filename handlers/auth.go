@@ -73,29 +73,6 @@ func (app *App) handlePassengerRegister(w http.ResponseWriter, r *http.Request) 
 		"code":    code,
 	})
 
-	// // Insert passenger
-	// result, err := app.DB.Exec("INSERT INTO passengers (full_name, phone, created_at) VALUES (?, ?, ?)",
-	// 	req.FullName, req.Phone, time.Now())
-	// if err != nil {
-	// 	utils.RespondError(w, http.StatusInternalServerError, "Failed to register passenger")
-	// 	return
-	// }
-	// userID, _ := result.LastInsertId()
-
-	// // Generate and store verification code
-	// code, err := utils.GenerateVerificationCode(app.DB, req.Phone)
-	// if err != nil {
-	// 	utils.RespondError(w, http.StatusInternalServerError, "Failed to generate verification code")
-	// 	return
-	// }
-
-	// // Simulate sending code (replace with Twilio in production)
-	// log.Printf("Verification code for %s: %s", req.Phone, code)
-
-	// utils.RespondJSON(w, http.StatusOK, map[string]interface{}{
-	// 	"message": "Verification code sent",
-	// 	"user_id": userID,
-	// })
 }
 
 
@@ -125,58 +102,6 @@ type ModelsRequest struct {
 
 type TaxistRating struct {
 	Rating float32 `json:"rating" example:"4" description:"update rating of taxist" validate:"required"`
-}
-
-// UpdateRatingTaxist godoc
-// @Summary Update taxist rating
-// @Description Updates a taxist's rating by taxist_id
-// @Tags Announcement
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param taxist_id path int true "Taxist ID"
-// @Param taxist_rating body handlers.TaxistRating true "Taxist rating details"
-// @Router /protected/taxist-rating/{taxist_id} [put]
-func (h *App) UpdateRatingTaxist(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["taxist_id"])
-	if err != nil {
-		http.Error(w, "Invalid taxist ID", http.StatusBadRequest)
-		return
-	}
-
-	var rating TaxistRating
-	if err:= json.NewDecoder(r.Body).Decode(&rating); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	defer r.Body.Close()
-
-	query := "CALL ratingPut(?, ?)"
-	result, err := h.DB.Exec(query, id, rating.Rating)
-	if err != nil {
-		http.Error(w, "Failed to update taxist rating", http.StatusInternalServerError)
-		return
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		http.Error(w, "Error checking update", http.StatusInternalServerError)
-		return
-	}
-
-	if rowsAffected == 0 {
-		http.Error(w, "User not found", http.StatusNotFound)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message":"successfully updated",
-	})
-
 }
 
 
@@ -237,7 +162,7 @@ func (app *App) handleTaxistRegister(w http.ResponseWriter, r *http.Request) {
 		"message": "Verification code generated",
 		"code":    code,
 	})
-
+	
 	// // Insert taxist
 	// result, err := app.DB.Exec(
 	// 	"INSERT INTO taxists (full_name, phone, car_make, car_model, car_year, car_number, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -247,7 +172,7 @@ func (app *App) handleTaxistRegister(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 	// userID, _ := result.LastInsertId()
-
+	
 	// // Generate and store verification code
 	// code, err := utils.GenerateVerificationCode(app.DB, req.Phone)
 	// if err != nil {
@@ -257,10 +182,10 @@ func (app *App) handleTaxistRegister(w http.ResponseWriter, r *http.Request) {
 
 	// // Simulate sending code
 	// log.Printf("Verification code for %s: %s", req.Phone, code)
-
+	
 	// utils.RespondJSON(w, http.StatusOK, map[string]interface{}{
-	// 	"message": "Verification code sent",
-	// 	"user_id": userID,
+		// 	"message": "Verification code sent",
+		// 	"user_id": userID,
 	// })
 }
 
@@ -303,14 +228,14 @@ func (app *App) handlePassengerLogin(w http.ResponseWriter, r *http.Request) {
 		utils.RespondError(w, http.StatusInternalServerError, "Database error")
 		return
 	}
-
+	
 	// Generate verification code
 	code, err := utils.GenerateVerificationCode(app.DB, req.Phone, "", "passenger", "", "", "", 0)
 	if err != nil {
 		utils.RespondError(w, http.StatusInternalServerError, "Failed to generate verification code")
 		return
 	}
-
+	
 	utils.RespondJSON(w, http.StatusOK, map[string]interface{}{
 		"message": "Verification code generated",
 		"code":    code,
@@ -326,7 +251,7 @@ func (app *App) handlePassengerLogin(w http.ResponseWriter, r *http.Request) {
 
 	// // Simulate sending code
 	// log.Printf("Verification code for %s: %s", req.Phone, code)
-
+	
 	// utils.RespondJSON(w, http.StatusOK, map[string]interface{}{
 	// 	"message": "Verification code sent",
 	// 	"user_id": userID,
@@ -387,7 +312,7 @@ func (app *App) handleTaxistLogin(w http.ResponseWriter, r *http.Request) {
 	// 	utils.RespondError(w, http.StatusInternalServerError, "Failed to generate verification code")
 	// 	return
 	// }
-
+	
 	// // Simulate sending code
 	// log.Printf("Verification code for %s: %s", req.Phone, code)
 
@@ -439,7 +364,7 @@ func (app *App) handleVerifyCode(w http.ResponseWriter, r *http.Request) {
 	err := app.DB.QueryRow(
 		`SELECT code, expires_at, full_name, user_type, car_make, car_model, car_year, car_number, rating 
 		 FROM verification_codes WHERE phone = ?`,
-		req.Phone).Scan(&storedCode, &expiresAt, &fullName, &userType, &carMake, &carModel, &carYear, &carNumber, &rating)
+		 req.Phone).Scan(&storedCode, &expiresAt, &fullName, &userType, &carMake, &carModel, &carYear, &carNumber, &rating)
 	if err == sql.ErrNoRows {
 		utils.RespondError(w, http.StatusBadRequest, "No verification code found")
 		return
@@ -458,7 +383,7 @@ func (app *App) handleVerifyCode(w http.ResponseWriter, r *http.Request) {
 		utils.RespondError(w, http.StatusBadRequest, "Invalid verification code")
 		return
 	}
-
+	
 	// Check if user is already registered
 	var userID int64
 	var isRegistered bool
@@ -558,4 +483,57 @@ func (app *App) handleProtected(w http.ResponseWriter, r *http.Request) {
 		"user_id":   claims.UserID,
 		"user_type": claims.UserType,
 	})
+}
+	
+
+// UpdateRatingTaxist godoc
+// @Summary Update taxist rating
+// @Description Updates a taxist's rating by taxist_id
+// @Tags Announcement
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param taxist_id path int true "Taxist ID"
+// @Param taxist_rating body handlers.TaxistRating true "Taxist rating details"
+// @Router /protected/taxist-rating/{taxist_id} [put]
+func (h *App) UpdateRatingTaxist(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["taxist_id"])
+	if err != nil {
+		http.Error(w, "Invalid taxist ID", http.StatusBadRequest)
+		return
+	}
+
+	var rating TaxistRating
+	if err:= json.NewDecoder(r.Body).Decode(&rating); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	defer r.Body.Close()
+
+	query := "CALL ratingPut(?, ?)"
+	result, err := h.DB.Exec(query, id, rating.Rating)
+	if err != nil {
+		http.Error(w, "Failed to update taxist rating", http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		http.Error(w, "Error checking update", http.StatusInternalServerError)
+		return
+	}
+
+	if rowsAffected == 0 {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message":"successfully updated",
+	})
+
 }

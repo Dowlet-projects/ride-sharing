@@ -755,7 +755,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Retrieve a paginated list of all ugurlar",
+                "description": "Retrieve a paginated list of ugurlar filtered by optional query parameters",
                 "consumes": [
                     "application/json"
                 ],
@@ -777,6 +777,54 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Number of items per page (default: 10, max: 100)",
                         "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Departure date in YYYY-MM-DD format",
+                        "name": "date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Departure place ID",
+                        "name": "from_place",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Destination place ID",
+                        "name": "to_place",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Car make name",
+                        "name": "car_make",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Car model name",
+                        "name": "car_model",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Space",
+                        "name": "space",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Rating",
+                        "name": "rating",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Passenger type",
+                        "name": "passenger_type",
                         "in": "query"
                     }
                 ],
@@ -1188,7 +1236,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "192.168.55.42:8080",
+	Host:             "192.168.55.42:8000",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Ride-Sharing Backend API",
