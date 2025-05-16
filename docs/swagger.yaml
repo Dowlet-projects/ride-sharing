@@ -197,7 +197,7 @@ definitions:
     - to_place
     - type
     type: object
-host: 192.168.55.42:8000
+host: 216.250.8.103:8000
 info:
   contact: {}
   description: API for managing passengers and taxists in a ride-sharing application.

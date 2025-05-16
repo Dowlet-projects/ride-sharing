@@ -1272,7 +1272,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "192.168.55.42:8000",
+	Host:             "216.250.8.103:8000",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Ride-Sharing Backend API",

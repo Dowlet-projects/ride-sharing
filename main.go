@@ -1,7 +1,7 @@
 // @title Ride-Sharing Backend API
 // @version 1.0
 // @description API for managing passengers and taxists in a ride-sharing application.
-// @host 192.168.55.42:8000
+// @host 216.250.8.103:8000
 // @BasePath /
 // @securityDefinitions.apikey BearerAuth
 // @in header
