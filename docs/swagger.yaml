@@ -467,6 +467,17 @@ paths:
       summary: DELETE model
       tags:
       - Car details
+  /protected/passenger-notifications:
+    get:
+      description: Retrieve all passenger notifications
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get all specific passenger notifications
+      tags:
+      - Announcement
   /protected/places/{id}:
     delete:
       description: DELETE place by id
@@ -639,13 +650,24 @@ paths:
       summary: Update taxist announcement department
       tags:
       - Announcement
-  /protected/taxist-notifications/{taxist_id}:
+  /protected/taxist-notifications:
     get:
       description: Retrieve all taxist notifications by given taxist_id
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get all specific taxist notifications by taxist_id
+      tags:
+      - Announcement
+  /protected/taxist-notifications/{not_id}:
+    get:
+      description: Retrieve notification by given not_id
       parameters:
-      - description: Taxist ID
+      - description: Notification ID
         in: path
-        name: taxist_id
+        name: not_id
         required: true
         type: string
       produces:
@@ -653,7 +675,7 @@ paths:
       responses: {}
       security:
       - BearerAuth: []
-      summary: Get all specific taxist notifications by taxist_id
+      summary: Get notification by not_id
       tags:
       - Announcement
   /protected/taxist-rating/{taxist_id}:

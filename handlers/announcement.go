@@ -379,8 +379,10 @@ func (h *App) GetUgurById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var ugur models.UgurDetails
-	if err := h.DB.QueryRow("SELECT id, taxist_id, depart_date, depart_time, space, distance, type, full_name, car_make, car_model, car_year, car_number, from_place, to_place, rating FROM ugurlar WHERE id = ? ", id).Scan(&ugur.ID, &ugur.TaxistID, &ugur.DepartDate, &ugur.DepartTime, &ugur.Space, 
-		&ugur.Distance, &ugur.Type, &ugur.FullName, &ugur.CarMake, &ugur.CarModel, &ugur.CarYear, 
+	if err := h.DB.QueryRow(`SELECT id, taxist_id, depart_date, depart_time, space, distance, type, 
+	full_name, taxist_phone, car_make, car_model, car_year, car_number, from_place, to_place, rating FROM ugurlar 
+	WHERE id = ? `, id).Scan(&ugur.ID, &ugur.TaxistID, &ugur.DepartDate, &ugur.DepartTime, &ugur.Space, 
+		&ugur.Distance, &ugur.Type, &ugur.FullName, &ugur.TaxistPhone, &ugur.CarMake, &ugur.CarModel, &ugur.CarYear, 
 		&ugur.CarNumber, &ugur.FromPlace, &ugur.ToPlace, &ugur.Rating); err != nil {
 			fmt.Println(err)
 			http.Error(w, "Server error", http.StatusInternalServerError)

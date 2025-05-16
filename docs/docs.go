@@ -411,6 +411,24 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/protected/passenger-notifications": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all passenger notifications",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get all specific passenger notifications",
+                "responses": {}
+            }
+        },
         "/protected/places/{id}": {
             "delete": {
                 "security": [
@@ -682,7 +700,7 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/protected/taxist-notifications/{taxist_id}": {
+        "/protected/taxist-notifications": {
             "get": {
                 "security": [
                     {
@@ -697,11 +715,29 @@ const docTemplate = `{
                     "Announcement"
                 ],
                 "summary": "Get all specific taxist notifications by taxist_id",
+                "responses": {}
+            }
+        },
+        "/protected/taxist-notifications/{not_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve notification by given not_id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get notification by not_id",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Taxist ID",
-                        "name": "taxist_id",
+                        "description": "Notification ID",
+                        "name": "not_id",
                         "in": "path",
                         "required": true
                     }

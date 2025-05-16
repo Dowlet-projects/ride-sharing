@@ -85,6 +85,7 @@ type UgurDetails struct {
 	Distance int `json:"distance"`
 	Type AnnouncementType `json:"type"`
 	FullName string `json:"full_name"`
+	TaxistPhone string `json:"taxist_phone"`
 	CarMake string `json:"car_make"`
 	CarModel string `json:"car_model"`
 	CarYear int `json:"car_year"`
@@ -92,6 +93,17 @@ type UgurDetails struct {
 	FromPlace string `json:"from_place"`
 	ToPlace string `json:"to_place"`
 	Rating float32 `json:"rating"`
+	Passengers []ReservePassengers `json:"passengers"`
+}
+
+type NotificationDetails struct {
+	ID int `json:"id"`
+	TaxistID int `json:"taxist_id"`
+	FullName string `json:"full_name"`
+	Phone string `json:"phone"`
+	Package string `json:"package"`
+	Count int `json:"count"`
+	CreatedAt string `json:"created_at"`
 	Passengers []ReservePassengers `json:"passengers"`
 }
 
@@ -130,6 +142,7 @@ type Notification struct {
 	ID int `json:"id"`
 	TaxistID int `json:"taxist_id"`
 	FullName string `json:"full_name"`
+	Package string `json:"package"`
 	Count int `json:"count"`
 	CreatedAt string `json:"created_at"`
 }

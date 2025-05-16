@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 14, 2025 at 04:03 PM
+-- Generation Time: May 16, 2025 at 03:27 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -126,8 +126,9 @@ CREATE TABLE `favourites` (
 
 INSERT INTO `favourites` (`id`, `taxist_id`, `passenger_id`) VALUES
 (3, 7, 7),
-(4, 6, 7),
-(6, 8, 7);
+(6, 8, 7),
+(11, 17, 7),
+(14, 17, 13);
 
 -- --------------------------------------------------------
 
@@ -172,7 +173,27 @@ INSERT INTO `passengers` (`id`, `full_name`, `phone`, `created_at`) VALUES
 (11, 'jjshshshs', '+993645575336', '2025-05-10 10:06:13'),
 (12, 'John1 Doe', '+12345678902341', '2025-05-10 10:19:26'),
 (13, 'John12 Doe', '+99361644115123', '2025-05-10 10:26:39'),
-(14, 'John2 Doe', '+12345678900', '2025-05-13 23:54:52');
+(14, 'John2 Doe', '+12345678900', '2025-05-13 23:54:52'),
+(15, 'begenc', '+99364646464', '2025-05-16 07:04:33');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `passenger_notifications`
+-- (See below for the actual view)
+--
+CREATE TABLE `passenger_notifications` (
+`who_reserved` int(11)
+,`from_place_name` varchar(50)
+,`to_place_name` varchar(50)
+,`full_name` varchar(255)
+,`depart_date` date
+,`depart_time` time
+,`count` int(11)
+,`taxi_ann_id` int(11)
+,`package` text
+,`created_at` timestamp
+);
 
 -- --------------------------------------------------------
 
@@ -247,7 +268,8 @@ INSERT INTO `rating_taxist` (`id`, `taxist_id`, `rating_ball`, `rating_count`) V
 (9, 14, 0.0, 0),
 (10, 15, 0.0, 0),
 (11, 16, 0.0, 0),
-(12, 17, 0.0, 0);
+(12, 17, 4.0, 6),
+(13, 18, 0.0, 0);
 
 --
 -- Triggers `rating_taxist`
@@ -364,7 +386,8 @@ INSERT INTO `taxists` (`id`, `full_name`, `phone`, `car_make`, `car_model`, `car
 (14, 'begenc', '+99361644114', 'Toyota', 'Camry', 2000, 'AB7689LB', 0.0, '2025-05-10 07:44:25'),
 (15, 'begenc', '+99361644113', 'Toyota', 'Camry', 2000, 'AB7689LB', 0.0, '2025-05-10 07:45:31'),
 (16, 'begenc', '+99361616161', 'Toyota', 'Camry', 2000, 'AG9898LB', 0.0, '2025-05-10 07:47:49'),
-(17, 'Begenc', '+993666666666', 'Toyota', 'Camry', 2000, 'AB1276LN', 0.0, '2025-05-13 12:20:38');
+(17, 'Begenc', '+993666666666', 'Toyota', 'Camry', 2000, 'AB1276LN', 4.0, '2025-05-14 18:38:26'),
+(18, 'begenx', '+99361644110', 'Toyota', 'Camry', 2000, 'AB7687LB', 0.0, '2025-05-16 03:03:53');
 
 --
 -- Triggers `taxists`
@@ -404,7 +427,8 @@ INSERT INTO `taxist_announcements` (`id`, `taxist_id`, `depart_date`, `depart_ti
 (19, 17, '2025-05-13', '03:39:45', 2, 1, 1, 400, 'person', 0),
 (20, 17, '2025-05-14', '14:26:18', 1, 3, 4, 600, 'person_and_package', 0),
 (21, 17, '2025-05-14', '14:26:18', 1, 3, 6, 600, 'person_and_package', 0),
-(22, 17, '2025-05-14', '14:38:37', 3, 2, 3, 500, 'person', 0);
+(22, 17, '2025-05-14', '14:38:37', 3, 2, 3, 500, 'person', 0),
+(23, 18, '2025-05-16', '21:48:18', 2, 1, 3, 400, 'person', 0);
 
 --
 -- Triggers `taxist_announcements`
@@ -474,7 +498,9 @@ INSERT INTO `taxist_comments` (`id`, `taxist_id`, `passenger_id`, `comment`, `cr
 (2, 6, 7, 'yaman gowy surya', '2025-05-04'),
 (3, 6, 7, 'Gowmy duyna gowy surdun elmydama seyle sur', '2025-05-05'),
 (4, 8, 7, 'gowy dal', '2025-05-12'),
-(5, 6, 14, 'Gowy adam', '2025-05-14');
+(5, 6, 14, 'Gowy adam', '2025-05-14'),
+(7, 17, 13, 'jsjjwjw', '2025-05-14'),
+(8, 17, 13, 'jsjjwjwjsjs', '2025-05-14');
 
 -- --------------------------------------------------------
 
@@ -486,6 +512,8 @@ CREATE TABLE `taxist_notifications` (
 `id` int(11)
 ,`taxist_id` int(11)
 ,`full_name` varchar(255)
+,`phone` varchar(20)
+,`package` text
 ,`count` int(11)
 ,`created_at` timestamp
 );
@@ -499,6 +527,7 @@ CREATE TABLE `taxist_notifications` (
 CREATE TABLE `ugurlar` (
 `id` int(11)
 ,`taxist_id` int(11)
+,`taxist_phone` varchar(40)
 ,`depart_date` date
 ,`depart_time` time
 ,`space` int(11)
@@ -589,6 +618,15 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 -- --------------------------------------------------------
 
 --
+-- Structure for view `passenger_notifications`
+--
+DROP TABLE IF EXISTS `passenger_notifications`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `passenger_notifications`  AS SELECT `rv`.`who_reserved` AS `who_reserved`, `p`.`name` AS `from_place_name`, `pl`.`name` AS `to_place_name`, `ta`.`full_name` AS `full_name`, `tax_ann`.`depart_date` AS `depart_date`, `tax_ann`.`depart_time` AS `depart_time`, `rv`.`count` AS `count`, `rv`.`taxi_ann_id` AS `taxi_ann_id`, `rv`.`package` AS `package`, `rv`.`created_at` AS `created_at` FROM ((((`reserve_passengers` `rv` join `taxist_announcements` `tax_ann` on(`rv`.`taxi_ann_id` = `tax_ann`.`id`)) join `taxists` `ta` on(`tax_ann`.`taxist_id` = `ta`.`id`)) join `places` `p` on(`tax_ann`.`from_place` = `p`.`id`)) join `places` `pl` on(`tax_ann`.`to_place` = `pl`.`id`)) ;
+
+-- --------------------------------------------------------
+
+--
 -- Structure for view `taxist_announcements_filter`
 --
 DROP TABLE IF EXISTS `taxist_announcements_filter`;
@@ -602,7 +640,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `taxist_notifications`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `taxist_notifications`  AS SELECT `rp`.`id` AS `id`, `ta`.`taxist_id` AS `taxist_id`, `p`.`full_name` AS `full_name`, `rp`.`count` AS `count`, `rp`.`created_at` AS `created_at` FROM ((`reserve_passengers` `rp` join `taxist_announcements` `ta` on(`rp`.`taxi_ann_id` = `ta`.`id`)) join `passengers` `p` on(`p`.`id` = `rp`.`who_reserved`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `taxist_notifications`  AS SELECT `rp`.`id` AS `id`, `ta`.`taxist_id` AS `taxist_id`, `p`.`full_name` AS `full_name`, `p`.`phone` AS `phone`, `rp`.`package` AS `package`, `rp`.`count` AS `count`, `rp`.`created_at` AS `created_at` FROM ((`reserve_passengers` `rp` join `taxist_announcements` `ta` on(`rp`.`taxi_ann_id` = `ta`.`id`)) join `passengers` `p` on(`p`.`id` = `rp`.`who_reserved`)) ;
 
 -- --------------------------------------------------------
 
@@ -611,7 +649,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `ugurlar`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `ugurlar`  AS SELECT `a`.`id` AS `id`, `t`.`id` AS `taxist_id`, `a`.`depart_date` AS `depart_date`, `a`.`depart_time` AS `depart_time`, `a`.`space` AS `space`, `a`.`distance` AS `distance`, `a`.`type` AS `type`, `t`.`full_name` AS `full_name`, `t`.`car_make` AS `car_make`, `t`.`car_model` AS `car_model`, `t`.`car_year` AS `car_year`, `t`.`car_number` AS `car_number`, `fp`.`name` AS `from_place`, `tp`.`name` AS `to_place`, `t`.`rating` AS `rating`, `a`.`departed` AS `departed` FROM (((`taxist_announcements` `a` join `taxists` `t` on(`a`.`taxist_id` = `t`.`id`)) join `places` `fp` on(`a`.`from_place` = `fp`.`id`)) join `places` `tp` on(`a`.`to_place` = `tp`.`id`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `ugurlar`  AS SELECT `a`.`id` AS `id`, `t`.`id` AS `taxist_id`, `t`.`phone` AS `taxist_phone`, `a`.`depart_date` AS `depart_date`, `a`.`depart_time` AS `depart_time`, `a`.`space` AS `space`, `a`.`distance` AS `distance`, `a`.`type` AS `type`, `t`.`full_name` AS `full_name`, `t`.`car_make` AS `car_make`, `t`.`car_model` AS `car_model`, `t`.`car_year` AS `car_year`, `t`.`car_number` AS `car_number`, `fp`.`name` AS `from_place`, `tp`.`name` AS `to_place`, `t`.`rating` AS `rating`, `a`.`departed` AS `departed` FROM (((`taxist_announcements` `a` join `taxists` `t` on(`a`.`taxist_id` = `t`.`id`)) join `places` `fp` on(`a`.`from_place` = `fp`.`id`)) join `places` `tp` on(`a`.`to_place` = `tp`.`id`)) ;
 
 -- --------------------------------------------------------
 
@@ -747,13 +785,13 @@ ALTER TABLE `car_models`
 -- AUTO_INCREMENT for table `favourites`
 --
 ALTER TABLE `favourites`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `passengers`
 --
 ALTER TABLE `passengers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `places`
@@ -771,7 +809,7 @@ ALTER TABLE `place_distances`
 -- AUTO_INCREMENT for table `rating_taxist`
 --
 ALTER TABLE `rating_taxist`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `reserve_packages`
@@ -795,19 +833,19 @@ ALTER TABLE `reserve_passengers_people`
 -- AUTO_INCREMENT for table `taxists`
 --
 ALTER TABLE `taxists`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `taxist_announcements`
 --
 ALTER TABLE `taxist_announcements`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `taxist_comments`
 --
 ALTER TABLE `taxist_comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables
