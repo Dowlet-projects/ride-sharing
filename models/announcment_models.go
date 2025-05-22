@@ -57,6 +57,7 @@ type Ugur struct {
 	TaxistID int `json:"taxist_id"`
 	DepartDate string `json:"depart_date"`
 	DepartTime string `json:"depart_time"`
+	FullSpace int `json:"full_space"`
 	Space int `json:"space"`
 	Distance int `json:"distance"`
 	Type AnnouncementType `json:"type"`
@@ -73,14 +74,15 @@ type Ugur struct {
 type ReservePassengers struct {
 	ID int `json:"id"`
 	FullName string `json:"full_name"`
-	Phone string `json:"phone"`
 }
 
 type UgurDetails struct {
 	ID int `json:"id"`
 	TaxistID int `json:"taxist_id"`
+	TaxistLike bool `json:"taxist_like"`
 	DepartDate string `json:"depart_date"`
 	DepartTime string `json:"depart_time"`
+	FullSpace int `json:"full_space"`
 	Space int `json:"space"`
 	Distance int `json:"distance"`
 	Type AnnouncementType `json:"type"`
@@ -100,7 +102,8 @@ type NotificationDetails struct {
 	ID int `json:"id"`
 	TaxistID int `json:"taxist_id"`
 	FullName string `json:"full_name"`
-	Phone string `json:"phone"`
+	WhoSubmitted string `json:"who_submitted"`
+	MainPassengerPhone string `json:"main_passenger_phone"`
 	Package string `json:"package"`
 	Count int `json:"count"`
 	CreatedAt string `json:"created_at"`

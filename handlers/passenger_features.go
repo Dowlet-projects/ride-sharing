@@ -15,7 +15,6 @@ import (
 type PassengerDetail struct {
 	ID int `json:"id"`
 	FullName string `json:"full_name"`
-	Phone string `json:"phone"`
 }
 
 type PassengerDetails struct {
@@ -23,6 +22,7 @@ type PassengerDetails struct {
 	Package string `json:"package"`
 	SubmitterName string `json:"submitter_name"`
 	SubmitterPhone string `json:"submitter_phone"`
+	MainPassengerPhone string `json:"main_passenger_phone"`
 	CreatedAt string `json:"created_at"`
 }
 
@@ -44,7 +44,7 @@ func (h *App) ReverseDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := h.DB.Query("SELECT id, full_name, phone from reserve_passengers_people where reserve_id = ? ", id)
+	rows, err := h.DB.Query("SELECT id, full_name from reserve_passengers_people where reserve_id = ? ", id)
 
 	if err != nil {
 		http.Error(w, "Server error", http.StatusInternalServerError)
@@ -55,7 +55,7 @@ func (h *App) ReverseDetails(w http.ResponseWriter, r *http.Request) {
 	var passengers []PassengerDetail = []PassengerDetail{}
 	for rows.Next() {
 		var passenger PassengerDetail
-		if err := rows.Scan(&passenger.ID, &passenger.FullName, &passenger.Phone); err != nil {
+		if err := rows.Scan(&passenger.ID, &passenger.FullName); err != nil {
 			http.Error(w, "Server error", http.StatusInternalServerError)
 			return
 		}
@@ -64,7 +64,7 @@ func (h *App) ReverseDetails(w http.ResponseWriter, r *http.Request) {
 
 	var passengerDetails PassengerDetails
 
-	if err := h.DB.QueryRow("SELECT package, full_name, phone, created_at FROM view_reverse_passengers where id = ? ", id).Scan(&passengerDetails.Package, &passengerDetails.SubmitterName, &passengerDetails.SubmitterPhone, &passengerDetails.CreatedAt); err != nil {
+	if err := h.DB.QueryRow("SELECT package, full_name, phone, main_passenger_phone, created_at FROM view_reverse_passengers where id = ? ", id).Scan(&passengerDetails.Package, &passengerDetails.SubmitterName, &passengerDetails.SubmitterPhone, &passengerDetails.MainPassengerPhone, &passengerDetails.CreatedAt); err != nil {
 		http.Error(w, "Server error", http.StatusInternalServerError)
 		return
 	}

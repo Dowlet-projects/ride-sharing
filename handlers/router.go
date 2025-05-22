@@ -78,12 +78,15 @@ func SetupRouter(db *sql.DB, cfg *config.Config) *mux.Router {
 	protected.HandleFunc("/reverse-details/{reverse_id}", app.ReverseDetails).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/favourites", app.CreateFavourites).Methods("POST", "OPTIONS")
 	protected.HandleFunc("/favourites", app.GetAllFavourites).Methods("GET", "OPTIONS")
+	protected.HandleFunc("/taxists", app.GetAllTaxists).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/taxist-departed/{taxi_ann_id}", app.UpdateTaxistAnnouncements).Methods("PUT", "OPTIONS")
 	protected.HandleFunc("/taxist-announcements/{departed}", app.GetTaxistAnnouncements).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/distances/{id}", app.DeleteDistances).Methods("DELETE", "OPTIONS")
 	protected.HandleFunc("/places/{id}", app.DeletePlace).Methods("DELETE", "OPTIONS")
 	protected.HandleFunc("/makes/{id}", app.DeleteMake).Methods("DELETE", "OPTIONS")
 	protected.HandleFunc("/models/{model_id}", app.DeleteModel).Methods("DELETE", "OPTIONS")
+	protected.HandleFunc("/passenger-message", app.CreateMessagePassenger).Methods("POST", "OPTIONS")
+	
 	return router
 }
 

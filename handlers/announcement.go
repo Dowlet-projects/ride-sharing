@@ -37,8 +37,8 @@ func (h *App) CreateAnnouncement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := "INSERT INTO taxist_announcements (taxist_id, depart_date, depart_time, from_place, to_place, space, type) VALUES (?, ?, ?, ?, ?, ?, ?)"
-	_, err := h.DB.Exec(query, userID, taxistAnn.DepartDate, taxistAnn.DepartTime, taxistAnn.FromPlaceID, taxistAnn.ToPlaceID, taxistAnn.Space,  taxistAnn.Type)
+	query := "INSERT INTO taxist_announcements (taxist_id, depart_date, depart_time, from_place, to_place, full_space, space, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+	_, err := h.DB.Exec(query, userID, taxistAnn.DepartDate, taxistAnn.DepartTime, taxistAnn.FromPlaceID, taxistAnn.ToPlaceID, taxistAnn.Space, taxistAnn.Space,  taxistAnn.Type)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Failed to create a announcement", http.StatusInternalServerError)
@@ -54,13 +54,13 @@ func (h *App) CreateAnnouncement(w http.ResponseWriter, r *http.Request) {
 
 type PassengerPeople struct {
 	FullName string `json:"full_name"`
-	Phone string `json:"phone"`
 }
 
 
 type  PostReservePassengers struct {
 	Passengers []PassengerPeople `json:"passengers" validate:"required"`
 	Package string `json:"package" validate:"required"`
+	Phone string `json:"phone" validate:"required"` 
 }
 
 //CreateReservePassengers handles POST /protected/reserve-passengers
@@ -98,8 +98,8 @@ func (h *App) CreateReservePassengers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	length := len(postReservePassengers.Passengers)
-	query := "INSERT INTO reserve_passengers (package, taxi_ann_id, who_reserved, count) VALUES (?, ?, ?, ?)"
-	 result, err := h.DB.Exec(query, postReservePassengers.Package, int_taxi_ann_id, userID, length)
+	query := "INSERT INTO reserve_passengers (package, phone, taxi_ann_id, who_reserved, count) VALUES (?, ?, ?, ?, ?)"
+	 result, err := h.DB.Exec(query, postReservePassengers.Package, postReservePassengers.Phone, int_taxi_ann_id, userID, length)
 	
 	 if err != nil {
 		http.Error(w, "Failed to create a reserved passenger", http.StatusInternalServerError)
@@ -110,8 +110,8 @@ func (h *App) CreateReservePassengers(w http.ResponseWriter, r *http.Request) {
 
 	reservedPassengers := postReservePassengers.Passengers
 	for _, v := range reservedPassengers {
-		que := "INSERT INTO reserve_passengers_people (full_name, phone, reserve_id, taxi_ann_id) VALUES (?, ?, ?, ?)"
-		_, err := h.DB.Exec(que, v.FullName, v.Phone, id, int_taxi_ann_id)
+		que := "INSERT INTO reserve_passengers_people (full_name, reserve_id, taxi_ann_id) VALUES (?, ?, ?)"
+		_, err := h.DB.Exec(que, v.FullName, id, int_taxi_ann_id)
 		if err != nil {
 			http.Error(w, "Failed to create reserved Passenger", http.StatusInternalServerError)
 			return
@@ -191,6 +191,7 @@ func (h *App) CreateReservePackages(w http.ResponseWriter, r *http.Request) {
 // @Param car_model query string false "Car model name" example=4
 // @Param space query int false "Space" example=3
 // @Param rating query int false "Rating" example=3
+// @Param taxist_id query int false "taxist Id" example=1
 // @Param passenger_type query string false "Passenger type" example="passenger"
 // @Router /protected/ugurlar [get]
 func (h *App) GetAllUgurlar(w http.ResponseWriter, r *http.Request) {
@@ -209,6 +210,7 @@ func (h *App) GetAllUgurlar(w http.ResponseWriter, r *http.Request) {
 	typeStr := r.URL.Query().Get("passenger_type")
 	spaceStr := r.URL.Query().Get("space")
 	ratingStr := r.URL.Query().Get("rating")
+	taxistIdStr := r.URL.Query().Get("taxist_id")
 
 	fmt.Println(typeStr)
 
@@ -230,7 +232,7 @@ func (h *App) GetAllUgurlar(w http.ResponseWriter, r *http.Request) {
 	offset := (page - 1) * limit
 
 	// Build the WHERE clause dynamically
-	query := `SELECT id, taxist_id, depart_date, depart_time, space, distance, type, full_name, car_make, car_model, 
+	query := `SELECT id, taxist_id, depart_date, depart_time, full_space, space, distance, type, full_name, car_make, car_model, 
 	car_year, car_number, from_place, to_place, rating FROM ugurlar WHERE id IN (SELECT id FROM taxist_announcements_filter`
 	countQuery := "SELECT COUNT(*) FROM ugurlar"
 	var conditions []string
@@ -276,6 +278,15 @@ func (h *App) GetAllUgurlar(w http.ResponseWriter, r *http.Request) {
 			args = append(args, space)
 		}
 	}
+
+	if taxistIdStr != "" {
+		taxist_id, err := strconv.Atoi(taxistIdStr)
+		if err == nil {
+			conditions = append(conditions, "taxist_id = ?")
+			args = append(args, taxist_id)
+		}
+	}
+
 	if typeStr != "" {
 		conditions = append(conditions, "type = ?")
 		args = append(args, typeStr)
@@ -312,7 +323,7 @@ func (h *App) GetAllUgurlar(w http.ResponseWriter, r *http.Request) {
 	var ugurlar []models.Ugur = []models.Ugur{}
 	for rows.Next() {
 		var ugur models.Ugur
-		if err := rows.Scan(&ugur.ID, &ugur.TaxistID, &ugur.DepartDate, &ugur.DepartTime, &ugur.Space,
+		if err := rows.Scan(&ugur.ID, &ugur.TaxistID, &ugur.DepartDate, &ugur.DepartTime, &ugur.FullSpace, &ugur.Space,
 			&ugur.Distance, &ugur.Type, &ugur.FullName, &ugur.CarMake, &ugur.CarModel, &ugur.CarYear,
 			&ugur.CarNumber, &ugur.FromPlace, &ugur.ToPlace, &ugur.Rating); err != nil {
 			fmt.Println(err)
@@ -378,10 +389,18 @@ func (h *App) GetUgurById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	claims, ok := r.Context().Value("claims").(*models.Claims)
+	if !ok {
+		utils.RespondError(w, http.StatusUnauthorized, "Invalid claims")
+		return
+	}
+
+	userID := claims.UserID
+
 	var ugur models.UgurDetails
-	if err := h.DB.QueryRow(`SELECT id, taxist_id, depart_date, depart_time, space, distance, type, 
+	if err := h.DB.QueryRow(`SELECT id, taxist_id, depart_date, depart_time, full_space, space, distance, type, 
 	full_name, taxist_phone, car_make, car_model, car_year, car_number, from_place, to_place, rating FROM ugurlar 
-	WHERE id = ? `, id).Scan(&ugur.ID, &ugur.TaxistID, &ugur.DepartDate, &ugur.DepartTime, &ugur.Space, 
+	WHERE id = ? `, id).Scan(&ugur.ID, &ugur.TaxistID, &ugur.DepartDate, &ugur.DepartTime, &ugur.FullSpace, &ugur.Space, 
 		&ugur.Distance, &ugur.Type, &ugur.FullName, &ugur.TaxistPhone, &ugur.CarMake, &ugur.CarModel, &ugur.CarYear, 
 		&ugur.CarNumber, &ugur.FromPlace, &ugur.ToPlace, &ugur.Rating); err != nil {
 			fmt.Println(err)
@@ -390,7 +409,7 @@ func (h *App) GetUgurById(w http.ResponseWriter, r *http.Request) {
 	}
 
 
-	rows, err := h.DB.Query("SELECT id, full_name, phone FROM reserve_passengers_people WHERE taxi_ann_id = ?", id)
+	rows, err := h.DB.Query("SELECT id, full_name FROM reserve_passengers_people WHERE taxi_ann_id = ?", id)
 
 	if err != nil {
 		http.Error(w, "Server error", http.StatusInternalServerError)
@@ -399,10 +418,21 @@ func (h *App) GetUgurById(w http.ResponseWriter, r *http.Request) {
 	
 	defer rows.Close()
 
+	query := "SELECT 1 FROM favourites WHERE taxist_id = ? AND passenger_id = ? "
+	var exists bool
+	
+	err = h.DB.QueryRow(query, ugur.TaxistID, userID).Scan(&exists)
+	if err != nil {
+		ugur.TaxistLike = false
+	} else {
+		ugur.TaxistLike = exists
+	}
+
+
 	var passengers []models.ReservePassengers = []models.ReservePassengers{} 
 	for rows.Next() {
 		var passenger models.ReservePassengers
-		if err:=rows.Scan(&passenger.ID, &passenger.FullName, &passenger.Phone); err != nil {
+		if err:=rows.Scan(&passenger.ID, &passenger.FullName); err != nil {
 			http.Error(w, "Server error", http.StatusInternalServerError)
 			return
 		}

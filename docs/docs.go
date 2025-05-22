@@ -784,6 +784,47 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/protected/taxists": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a paginated list of taxists filtered by optional query parameters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get all taxists",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page (default: 10, max: 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search through taxist name",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/protected/ugurlar": {
             "get": {
                 "security": [
@@ -855,6 +896,12 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Rating",
                         "name": "rating",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "taxist Id",
+                        "name": "taxist_id",
                         "in": "query"
                     },
                     {
@@ -1032,9 +1079,6 @@ const docTemplate = `{
             "properties": {
                 "full_name": {
                     "type": "string"
-                },
-                "phone": {
-                    "type": "string"
                 }
             }
         },
@@ -1080,7 +1124,8 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "package",
-                "passengers"
+                "passengers",
+                "phone"
             ],
             "properties": {
                 "package": {
@@ -1091,6 +1136,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/handlers.PassengerPeople"
                     }
+                },
+                "phone": {
+                    "type": "string"
                 }
             }
         },
@@ -1272,7 +1320,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "216.250.8.103:8000",
+	Host:             "192.168.55.42:8000",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Ride-Sharing Backend API",

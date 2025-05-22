@@ -110,7 +110,6 @@ func (h *App) GetAllTaxistNotifications(w http.ResponseWriter, r *http.Request) 
 // @Param departed path string true "Departed"
 // @Router /protected/taxist-announcements/{departed} [get]
 func (h *App) GetTaxistAnnouncements(w http.ResponseWriter, r *http.Request) {
-
 	vars := mux.Vars(r)
 	departed, err := strconv.Atoi(vars["departed"])
 
@@ -178,11 +177,11 @@ func (h *App) GetNotificationById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := `SELECT id, taxist_id, full_name, phone, package, count, created_at FROM 
+	query := `SELECT id, taxist_id, full_name, who_submitted, main_passenger_phone, package, count, created_at FROM 
 	taxist_notifications WHERE id = ?`
 	var notification models.NotificationDetails
 	if err := h.DB.QueryRow(query, id).Scan(&notification.ID, &notification.TaxistID,
-		 &notification.FullName, &notification.Phone, &notification.Package, &notification.Count, 
+		 &notification.FullName, &notification.WhoSubmitted, &notification.MainPassengerPhone, &notification.Package, &notification.Count, 
 		 &notification.CreatedAt); err != nil {
 			http.Error(w, "Server error", http.StatusInternalServerError)
 			return
@@ -190,7 +189,7 @@ func (h *App) GetNotificationById(w http.ResponseWriter, r *http.Request) {
 
 
 	rows, err := h.DB.Query(
-		`SELECT id, full_name, phone FROM reserve_passengers_people 
+		`SELECT id, full_name FROM reserve_passengers_people 
 		WHERE reserve_id = ?`, id,
 	)
 
@@ -204,7 +203,7 @@ func (h *App) GetNotificationById(w http.ResponseWriter, r *http.Request) {
 	var passengers []models.ReservePassengers = []models.ReservePassengers{} 
 	for rows.Next() {
 		var passenger models.ReservePassengers
-		if err:=rows.Scan(&passenger.ID, &passenger.FullName, &passenger.Phone); err != nil {
+		if err:=rows.Scan(&passenger.ID, &passenger.FullName); err != nil {
 			http.Error(w, "Server error", http.StatusInternalServerError)
 			return
 		}

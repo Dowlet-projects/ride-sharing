@@ -37,8 +37,6 @@ definitions:
     properties:
       full_name:
         type: string
-      phone:
-        type: string
     type: object
   handlers.PassengerRegisterRequest:
     properties:
@@ -74,9 +72,12 @@ definitions:
         items:
           $ref: '#/definitions/handlers.PassengerPeople'
         type: array
+      phone:
+        type: string
     required:
     - package
     - passengers
+    - phone
     type: object
   handlers.TaxistRating:
     properties:
@@ -197,7 +198,7 @@ definitions:
     - to_place
     - type
     type: object
-host: 216.250.8.103:8000
+host: 192.168.55.42:8000
 info:
   contact: {}
   description: API for managing passengers and taxists in a ride-sharing application.
@@ -703,6 +704,33 @@ paths:
       summary: Update taxist rating
       tags:
       - Announcement
+  /protected/taxists:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a paginated list of taxists filtered by optional query
+        parameters
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Number of items per page (default: 10, max: 100)'
+        in: query
+        name: limit
+        type: integer
+      - description: Search through taxist name
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get all taxists
+      tags:
+      - Announcement
   /protected/ugurlar:
     get:
       consumes:
@@ -745,6 +773,10 @@ paths:
       - description: Rating
         in: query
         name: rating
+        type: integer
+      - description: taxist Id
+        in: query
+        name: taxist_id
         type: integer
       - description: Passenger type
         in: query

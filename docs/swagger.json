@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "216.250.8.103:8000",
+    "host": "192.168.55.42:8000",
     "basePath": "/",
     "paths": {
         "/distances": {
@@ -778,6 +778,47 @@
                 "responses": {}
             }
         },
+        "/protected/taxists": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a paginated list of taxists filtered by optional query parameters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get all taxists",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page (default: 10, max: 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search through taxist name",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/protected/ugurlar": {
             "get": {
                 "security": [
@@ -849,6 +890,12 @@
                         "type": "integer",
                         "description": "Rating",
                         "name": "rating",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "taxist Id",
+                        "name": "taxist_id",
                         "in": "query"
                     },
                     {
@@ -1026,9 +1073,6 @@
             "properties": {
                 "full_name": {
                     "type": "string"
-                },
-                "phone": {
-                    "type": "string"
                 }
             }
         },
@@ -1074,7 +1118,8 @@
             "type": "object",
             "required": [
                 "package",
-                "passengers"
+                "passengers",
+                "phone"
             ],
             "properties": {
                 "package": {
@@ -1085,6 +1130,9 @@
                     "items": {
                         "$ref": "#/definitions/handlers.PassengerPeople"
                     }
+                },
+                "phone": {
+                    "type": "string"
                 }
             }
         },
