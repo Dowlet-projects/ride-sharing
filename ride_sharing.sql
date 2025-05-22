@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 16, 2025 at 03:27 PM
+-- Generation Time: May 22, 2025 at 07:58 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -125,10 +125,10 @@ CREATE TABLE `favourites` (
 --
 
 INSERT INTO `favourites` (`id`, `taxist_id`, `passenger_id`) VALUES
-(3, 7, 7),
-(6, 8, 7),
 (11, 17, 7),
-(14, 17, 13);
+(14, 17, 13),
+(15, 17, 15),
+(16, 17, 16);
 
 -- --------------------------------------------------------
 
@@ -174,7 +174,41 @@ INSERT INTO `passengers` (`id`, `full_name`, `phone`, `created_at`) VALUES
 (12, 'John1 Doe', '+12345678902341', '2025-05-10 10:19:26'),
 (13, 'John12 Doe', '+99361644115123', '2025-05-10 10:26:39'),
 (14, 'John2 Doe', '+12345678900', '2025-05-13 23:54:52'),
-(15, 'begenc', '+99364646464', '2025-05-16 07:04:33');
+(15, 'begenc', '+99364646464', '2025-05-16 07:04:33'),
+(16, 'begenc', '+99364676869', '2025-05-21 11:44:32');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `passenger_messages`
+--
+
+CREATE TABLE `passenger_messages` (
+  `id` int(11) NOT NULL,
+  `passenger_id` int(11) DEFAULT NULL,
+  `message` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `passenger_messages`
+--
+
+INSERT INTO `passenger_messages` (`id`, `passenger_id`, `message`) VALUES
+(1, 7, 'Salam men plan atly taxistdan gosh sargadym gelmedi.');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `passenger_messages_full`
+-- (See below for the actual view)
+--
+CREATE TABLE `passenger_messages_full` (
+`id` int(11)
+,`passenger_id` int(11)
+,`full_name` varchar(255)
+,`phone` varchar(20)
+,`message` text
+);
 
 -- --------------------------------------------------------
 
@@ -257,12 +291,6 @@ CREATE TABLE `rating_taxist` (
 --
 
 INSERT INTO `rating_taxist` (`id`, `taxist_id`, `rating_ball`, `rating_count`) VALUES
-(1, 6, 6.5, 15),
-(2, 7, 4.0, 1),
-(3, 8, 4.0, 1),
-(4, 9, 12.0, 2),
-(5, 10, 0.0, 1),
-(6, 11, 0.0, 0),
 (7, 12, 0.0, 0),
 (8, 13, 0.0, 0),
 (9, 14, 0.0, 0),
@@ -297,6 +325,13 @@ CREATE TABLE `reserve_packages` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `reserve_packages`
+--
+
+INSERT INTO `reserve_packages` (`id`, `package_sender`, `package_reciever`, `sender_phone`, `reciever_phone`, `about_package`, `who_reserved`, `taxi_ann_id`, `created_at`) VALUES
+(10, 'begenc', 'jumayeq', '61644115', '6666666666', 'nwnsnsn', 15, 19, '2025-05-16 16:51:10');
+
 -- --------------------------------------------------------
 
 --
@@ -306,6 +341,7 @@ CREATE TABLE `reserve_packages` (
 CREATE TABLE `reserve_passengers` (
   `id` int(11) NOT NULL,
   `package` text DEFAULT '',
+  `phone` varchar(50) DEFAULT NULL,
   `taxi_ann_id` int(11) DEFAULT NULL,
   `who_reserved` int(11) DEFAULT NULL,
   `count` int(11) DEFAULT NULL,
@@ -316,8 +352,16 @@ CREATE TABLE `reserve_passengers` (
 -- Dumping data for table `reserve_passengers`
 --
 
-INSERT INTO `reserve_passengers` (`id`, `package`, `taxi_ann_id`, `who_reserved`, `count`, `created_at`) VALUES
-(16, 'string', 16, 14, 1, '2025-05-14 04:58:39');
+INSERT INTO `reserve_passengers` (`id`, `package`, `phone`, `taxi_ann_id`, `who_reserved`, `count`, `created_at`) VALUES
+(16, 'string', '+99365126512', 16, 14, 1, '2025-05-14 04:58:39'),
+(18, '', '+99365126512', 20, 15, 1, '2025-05-16 16:26:16'),
+(19, '', '+99365126512', 16, 15, 1, '2025-05-16 16:26:55'),
+(20, '', '+99365126512', 20, 15, 1, '2025-05-16 16:27:26'),
+(21, '', '+99365126512', 16, 15, 1, '2025-05-16 16:27:50'),
+(22, '', '+99365126512', 21, 16, 1, '2025-05-21 17:43:58'),
+(23, '', '+99365126512', 21, 16, 2, '2025-05-21 17:45:04'),
+(24, 'goslarym bar', '+99365544343', 17, 7, 2, '2025-05-22 11:56:42'),
+(25, '', '', 19, 13, 3, '2025-05-22 17:07:01');
 
 -- --------------------------------------------------------
 
@@ -338,7 +382,19 @@ CREATE TABLE `reserve_passengers_people` (
 --
 
 INSERT INTO `reserve_passengers_people` (`id`, `full_name`, `phone`, `reserve_id`, `taxi_ann_id`) VALUES
-(11, 'string', 'string', 16, 16);
+(11, 'string', 'string', 16, 16),
+(12, 'begenc', '61644118', 18, 20),
+(13, 'begenc', '+99361644118', 19, 16),
+(14, 'begebc', '+99361644118', 20, 20),
+(15, 'jhvu', '+99361644118', 21, 16),
+(16, 'jsjsjsn', '+99364676769464', 22, 21),
+(17, 'hhhggt', '+993665556669', 23, 21),
+(18, 'jhhgyyg', '+993665556669', 23, 21),
+(19, 'Meret', NULL, 24, 17),
+(20, 'Merdan', NULL, 24, 17),
+(21, 'Amam', NULL, 25, 19),
+(22, 'Asyr', NULL, 25, 19),
+(23, 'tahyr', NULL, 25, 19);
 
 --
 -- Triggers `reserve_passengers_people`
@@ -375,12 +431,6 @@ CREATE TABLE `taxists` (
 --
 
 INSERT INTO `taxists` (`id`, `full_name`, `phone`, `car_make`, `car_model`, `car_year`, `car_number`, `rating`, `created_at`) VALUES
-(6, 'Jane Smith', '+12345678907', 'Toyota', 'Camry', 2020, 'ABC123', 6.5, '2025-05-02 11:24:58'),
-(7, 'Janes Smith', '+123456789021', 'Toyota', 'Camry', 2020, 'ABC123', 4.0, '2025-05-02 10:17:06'),
-(8, 'Janed Smith', '+123456789023', 'Toyota', 'Camry', 2020, 'ABC123', 4.0, '2025-05-02 12:55:16'),
-(9, 'Janeds Smith', '+1234567890231', 'Toyota', 'Camry', 2020, 'ABC123', 12.0, '2025-05-02 18:32:58'),
-(10, 'Janes Smith', '+12345678902', 'Toyota', 'Camry', 2020, 'ABC123', 0.0, '2025-05-02 23:27:29'),
-(11, 'Jane Smith', '+123456789025', 'Toyota', 'Camry', 2020, 'ABC123', 0.0, '2025-05-03 05:36:10'),
 (12, 'buiiegemc', '+99361644119', 'Toyota', 'Camry', 2000, 'AB1772LB', 0.0, '2025-05-10 07:38:56'),
 (13, 'begenc', '+99361644115', 'Toyota', 'Camry', 2000, 'AB7689LB', 0.0, '2025-05-10 07:42:32'),
 (14, 'begenc', '+99361644114', 'Toyota', 'Camry', 2000, 'AB7689LB', 0.0, '2025-05-10 07:44:25'),
@@ -410,6 +460,7 @@ CREATE TABLE `taxist_announcements` (
   `depart_time` time DEFAULT NULL,
   `from_place` int(11) DEFAULT NULL,
   `to_place` int(11) DEFAULT NULL,
+  `full_space` int(11) DEFAULT NULL,
   `space` int(11) DEFAULT NULL,
   `distance` int(11) DEFAULT NULL,
   `type` enum('person','package','person_and_package') DEFAULT NULL,
@@ -420,15 +471,15 @@ CREATE TABLE `taxist_announcements` (
 -- Dumping data for table `taxist_announcements`
 --
 
-INSERT INTO `taxist_announcements` (`id`, `taxist_id`, `depart_date`, `depart_time`, `from_place`, `to_place`, `space`, `distance`, `type`, `departed`) VALUES
-(16, 17, '2025-05-13', '03:21:01', 2, 1, 3, 400, 'person', 0),
-(17, 17, '2025-05-13', '22:22:19', 3, 2, 3, 500, 'person', 0),
-(18, 17, '2025-05-13', '22:22:19', 3, 2, 3, 500, 'person', 0),
-(19, 17, '2025-05-13', '03:39:45', 2, 1, 1, 400, 'person', 0),
-(20, 17, '2025-05-14', '14:26:18', 1, 3, 4, 600, 'person_and_package', 0),
-(21, 17, '2025-05-14', '14:26:18', 1, 3, 6, 600, 'person_and_package', 0),
-(22, 17, '2025-05-14', '14:38:37', 3, 2, 3, 500, 'person', 0),
-(23, 18, '2025-05-16', '21:48:18', 2, 1, 3, 400, 'person', 0);
+INSERT INTO `taxist_announcements` (`id`, `taxist_id`, `depart_date`, `depart_time`, `from_place`, `to_place`, `full_space`, `space`, `distance`, `type`, `departed`) VALUES
+(16, 17, '2025-05-13', '03:21:01', 2, 1, 4, 1, 400, 'person', 1),
+(17, 17, '2025-05-13', '22:22:19', 3, 2, 4, 1, 500, 'person', 0),
+(18, 17, '2025-05-13', '22:22:19', 3, 2, 4, 3, 500, 'person', 0),
+(19, 17, '2025-05-13', '03:39:45', 2, 1, 4, -2, 400, 'person', 0),
+(20, 17, '2025-05-14', '14:26:18', 1, 3, 4, 2, 600, 'person_and_package', 0),
+(21, 17, '2025-05-14', '14:26:18', 1, 3, 4, 3, 600, 'person_and_package', 0),
+(22, 17, '2025-05-14', '14:38:37', 3, 2, 4, 3, 500, 'person', 0),
+(23, 18, '2025-05-16', '21:48:18', 2, 1, 4, 3, 400, 'person', 0);
 
 --
 -- Triggers `taxist_announcements`
@@ -495,12 +546,41 @@ CREATE TABLE `taxist_comments` (
 --
 
 INSERT INTO `taxist_comments` (`id`, `taxist_id`, `passenger_id`, `comment`, `created_at`) VALUES
-(2, 6, 7, 'yaman gowy surya', '2025-05-04'),
-(3, 6, 7, 'Gowmy duyna gowy surdun elmydama seyle sur', '2025-05-05'),
-(4, 8, 7, 'gowy dal', '2025-05-12'),
-(5, 6, 14, 'Gowy adam', '2025-05-14'),
 (7, 17, 13, 'jsjjwjw', '2025-05-14'),
 (8, 17, 13, 'jsjjwjwjsjs', '2025-05-14');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `taxist_messages`
+--
+
+CREATE TABLE `taxist_messages` (
+  `id` int(11) NOT NULL,
+  `taxist_id` int(11) DEFAULT NULL,
+  `message` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `taxist_messages`
+--
+
+INSERT INTO `taxist_messages` (`id`, `taxist_id`, `message`) VALUES
+(1, 17, 'Salam men taxist welin passenger bolup bilyanmi?');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `taxist_messages_full`
+-- (See below for the actual view)
+--
+CREATE TABLE `taxist_messages_full` (
+`id` int(11)
+,`taxist_id` int(11)
+,`full_name` varchar(255)
+,`phone` varchar(40)
+,`message` text
+);
 
 -- --------------------------------------------------------
 
@@ -512,7 +592,8 @@ CREATE TABLE `taxist_notifications` (
 `id` int(11)
 ,`taxist_id` int(11)
 ,`full_name` varchar(255)
-,`phone` varchar(20)
+,`who_submitted` varchar(20)
+,`main_passenger_phone` varchar(50)
 ,`package` text
 ,`count` int(11)
 ,`created_at` timestamp
@@ -530,6 +611,7 @@ CREATE TABLE `ugurlar` (
 ,`taxist_phone` varchar(40)
 ,`depart_date` date
 ,`depart_time` time
+,`full_space` int(11)
 ,`space` int(11)
 ,`distance` int(11)
 ,`type` enum('person','package','person_and_package')
@@ -585,6 +667,7 @@ CREATE TABLE `view_reverse_passengers` (
 ,`package` text
 ,`full_name` varchar(255)
 ,`phone` varchar(20)
+,`main_passenger_phone` varchar(50)
 ,`created_at` timestamp
 );
 
@@ -618,6 +701,15 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 -- --------------------------------------------------------
 
 --
+-- Structure for view `passenger_messages_full`
+--
+DROP TABLE IF EXISTS `passenger_messages_full`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `passenger_messages_full`  AS SELECT `pm`.`id` AS `id`, `p`.`id` AS `passenger_id`, `p`.`full_name` AS `full_name`, `p`.`phone` AS `phone`, `pm`.`message` AS `message` FROM (`passenger_messages` `pm` join `passengers` `p` on(`pm`.`passenger_id` = `p`.`id`)) ;
+
+-- --------------------------------------------------------
+
+--
 -- Structure for view `passenger_notifications`
 --
 DROP TABLE IF EXISTS `passenger_notifications`;
@@ -636,11 +728,20 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 -- --------------------------------------------------------
 
 --
+-- Structure for view `taxist_messages_full`
+--
+DROP TABLE IF EXISTS `taxist_messages_full`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `taxist_messages_full`  AS SELECT `tm`.`id` AS `id`, `t`.`id` AS `taxist_id`, `t`.`full_name` AS `full_name`, `t`.`phone` AS `phone`, `tm`.`message` AS `message` FROM (`taxist_messages` `tm` join `taxists` `t` on(`tm`.`taxist_id` = `t`.`id`)) ;
+
+-- --------------------------------------------------------
+
+--
 -- Structure for view `taxist_notifications`
 --
 DROP TABLE IF EXISTS `taxist_notifications`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `taxist_notifications`  AS SELECT `rp`.`id` AS `id`, `ta`.`taxist_id` AS `taxist_id`, `p`.`full_name` AS `full_name`, `p`.`phone` AS `phone`, `rp`.`package` AS `package`, `rp`.`count` AS `count`, `rp`.`created_at` AS `created_at` FROM ((`reserve_passengers` `rp` join `taxist_announcements` `ta` on(`rp`.`taxi_ann_id` = `ta`.`id`)) join `passengers` `p` on(`p`.`id` = `rp`.`who_reserved`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `taxist_notifications`  AS SELECT `rp`.`id` AS `id`, `ta`.`taxist_id` AS `taxist_id`, `p`.`full_name` AS `full_name`, `p`.`phone` AS `who_submitted`, `rp`.`phone` AS `main_passenger_phone`, `rp`.`package` AS `package`, `rp`.`count` AS `count`, `rp`.`created_at` AS `created_at` FROM ((`reserve_passengers` `rp` join `taxist_announcements` `ta` on(`rp`.`taxi_ann_id` = `ta`.`id`)) join `passengers` `p` on(`p`.`id` = `rp`.`who_reserved`)) ;
 
 -- --------------------------------------------------------
 
@@ -649,7 +750,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `ugurlar`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `ugurlar`  AS SELECT `a`.`id` AS `id`, `t`.`id` AS `taxist_id`, `t`.`phone` AS `taxist_phone`, `a`.`depart_date` AS `depart_date`, `a`.`depart_time` AS `depart_time`, `a`.`space` AS `space`, `a`.`distance` AS `distance`, `a`.`type` AS `type`, `t`.`full_name` AS `full_name`, `t`.`car_make` AS `car_make`, `t`.`car_model` AS `car_model`, `t`.`car_year` AS `car_year`, `t`.`car_number` AS `car_number`, `fp`.`name` AS `from_place`, `tp`.`name` AS `to_place`, `t`.`rating` AS `rating`, `a`.`departed` AS `departed` FROM (((`taxist_announcements` `a` join `taxists` `t` on(`a`.`taxist_id` = `t`.`id`)) join `places` `fp` on(`a`.`from_place` = `fp`.`id`)) join `places` `tp` on(`a`.`to_place` = `tp`.`id`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `ugurlar`  AS SELECT `a`.`id` AS `id`, `t`.`id` AS `taxist_id`, `t`.`phone` AS `taxist_phone`, `a`.`depart_date` AS `depart_date`, `a`.`depart_time` AS `depart_time`, `a`.`full_space` AS `full_space`, `a`.`space` AS `space`, `a`.`distance` AS `distance`, `a`.`type` AS `type`, `t`.`full_name` AS `full_name`, `t`.`car_make` AS `car_make`, `t`.`car_model` AS `car_model`, `t`.`car_year` AS `car_year`, `t`.`car_number` AS `car_number`, `fp`.`name` AS `from_place`, `tp`.`name` AS `to_place`, `t`.`rating` AS `rating`, `a`.`departed` AS `departed` FROM (((`taxist_announcements` `a` join `taxists` `t` on(`a`.`taxist_id` = `t`.`id`)) join `places` `fp` on(`a`.`from_place` = `fp`.`id`)) join `places` `tp` on(`a`.`to_place` = `tp`.`id`)) ;
 
 -- --------------------------------------------------------
 
@@ -658,7 +759,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `view_reverse_passengers`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_reverse_passengers`  AS SELECT `rp`.`id` AS `id`, `rp`.`package` AS `package`, `p`.`full_name` AS `full_name`, `p`.`phone` AS `phone`, `rp`.`created_at` AS `created_at` FROM (`reserve_passengers` `rp` join `passengers` `p` on(`rp`.`who_reserved` = `p`.`id`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_reverse_passengers`  AS SELECT `rp`.`id` AS `id`, `rp`.`package` AS `package`, `p`.`full_name` AS `full_name`, `p`.`phone` AS `phone`, `rp`.`phone` AS `main_passenger_phone`, `rp`.`created_at` AS `created_at` FROM (`reserve_passengers` `rp` join `passengers` `p` on(`rp`.`who_reserved` = `p`.`id`)) ;
 
 --
 -- Indexes for dumped tables
@@ -682,7 +783,7 @@ ALTER TABLE `car_models`
 --
 ALTER TABLE `favourites`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `taxist_id` (`taxist_id`);
+  ADD KEY `favourites_ibfk_1` (`taxist_id`);
 
 --
 -- Indexes for table `passengers`
@@ -690,6 +791,13 @@ ALTER TABLE `favourites`
 ALTER TABLE `passengers`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `phone` (`phone`);
+
+--
+-- Indexes for table `passenger_messages`
+--
+ALTER TABLE `passenger_messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `passenger_messages_ibfk_1` (`passenger_id`);
 
 --
 -- Indexes for table `places`
@@ -760,6 +868,13 @@ ALTER TABLE `taxist_comments`
   ADD KEY `passenger_id` (`passenger_id`);
 
 --
+-- Indexes for table `taxist_messages`
+--
+ALTER TABLE `taxist_messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `taxist_id` (`taxist_id`);
+
+--
 -- Indexes for table `verification_codes`
 --
 ALTER TABLE `verification_codes`
@@ -785,13 +900,19 @@ ALTER TABLE `car_models`
 -- AUTO_INCREMENT for table `favourites`
 --
 ALTER TABLE `favourites`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `passengers`
 --
 ALTER TABLE `passengers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT for table `passenger_messages`
+--
+ALTER TABLE `passenger_messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `places`
@@ -815,19 +936,19 @@ ALTER TABLE `rating_taxist`
 -- AUTO_INCREMENT for table `reserve_packages`
 --
 ALTER TABLE `reserve_packages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `reserve_passengers`
 --
 ALTER TABLE `reserve_passengers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `reserve_passengers_people`
 --
 ALTER TABLE `reserve_passengers_people`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `taxists`
@@ -839,13 +960,19 @@ ALTER TABLE `taxists`
 -- AUTO_INCREMENT for table `taxist_announcements`
 --
 ALTER TABLE `taxist_announcements`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `taxist_comments`
 --
 ALTER TABLE `taxist_comments`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `taxist_messages`
+--
+ALTER TABLE `taxist_messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
@@ -861,7 +988,13 @@ ALTER TABLE `car_models`
 -- Constraints for table `favourites`
 --
 ALTER TABLE `favourites`
-  ADD CONSTRAINT `favourites_ibfk_1` FOREIGN KEY (`taxist_id`) REFERENCES `taxists` (`id`);
+  ADD CONSTRAINT `favourites_ibfk_1` FOREIGN KEY (`taxist_id`) REFERENCES `taxists` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `passenger_messages`
+--
+ALTER TABLE `passenger_messages`
+  ADD CONSTRAINT `passenger_messages_ibfk_1` FOREIGN KEY (`passenger_id`) REFERENCES `passengers` (`id`);
 
 --
 -- Constraints for table `place_distances`
@@ -910,6 +1043,12 @@ ALTER TABLE `taxist_announcements`
 ALTER TABLE `taxist_comments`
   ADD CONSTRAINT `taxist_comments_ibfk_1` FOREIGN KEY (`taxist_id`) REFERENCES `taxists` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `taxist_comments_ibfk_2` FOREIGN KEY (`passenger_id`) REFERENCES `passengers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `taxist_messages`
+--
+ALTER TABLE `taxist_messages`
+  ADD CONSTRAINT `taxist_messages_ibfk_1` FOREIGN KEY (`taxist_id`) REFERENCES `taxists` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

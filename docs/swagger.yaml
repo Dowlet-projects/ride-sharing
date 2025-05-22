@@ -33,6 +33,11 @@ definitions:
     - make_id
     - name
     type: object
+  handlers.PassengerMessage:
+    properties:
+      message:
+        type: string
+    type: object
   handlers.PassengerPeople:
     properties:
       full_name:
@@ -78,6 +83,11 @@ definitions:
     - package
     - passengers
     - phone
+    type: object
+  handlers.TaxistMessage:
+    properties:
+      message:
+        type: string
     type: object
   handlers.TaxistRating:
     properties:
@@ -468,6 +478,37 @@ paths:
       summary: DELETE model
       tags:
       - Car details
+  /protected/passenger-message:
+    post:
+      consumes:
+      - application/json
+      description: add a passenger message
+      parameters:
+      - description: Message
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PassengerMessage'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: POST a passenger message
+      tags:
+      - Message
+  /protected/passenger-messages:
+    get:
+      description: Retrieve all passenger-messages
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get all passenger-messages
+      tags:
+      - Message
   /protected/passenger-notifications:
     get:
       description: Retrieve all passenger notifications
@@ -651,6 +692,37 @@ paths:
       summary: Update taxist announcement department
       tags:
       - Announcement
+  /protected/taxist-message:
+    post:
+      consumes:
+      - application/json
+      description: add a taxist message
+      parameters:
+      - description: Message
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TaxistMessage'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: POST a taxist message
+      tags:
+      - Message
+  /protected/taxist-messages:
+    get:
+      description: Retrieve all taxist-messages
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get all taxist-messages
+      tags:
+      - Message
   /protected/taxist-notifications:
     get:
       description: Retrieve all taxist notifications by given taxist_id

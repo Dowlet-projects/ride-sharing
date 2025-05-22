@@ -5,11 +5,11 @@ import (
 
 	"net/http"
 	"encoding/json"
-	//"ride-sharing/models"
+	"ride-sharing/models"
 	"fmt"
 	// "github.com/gorilla/mux"
 	"strconv"
-	// "ride-sharing/utils"
+	"ride-sharing/utils"
 	"strings"
 )
 
@@ -135,4 +135,186 @@ func (h *App) GetAllTaxists(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
+}
+
+// Message
+
+
+type PassengerMessage struct {
+	Message string `json:"message"`
+}
+
+
+//CreateMessagePassenger handles POST /protected/passenger-message
+// @Summary POST a passenger message
+// @Description add a passenger message
+// @Tags Message
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param body body PassengerMessage true "Message"
+// @Router /protected/passenger-message [post]
+func (h *App) CreateMessagePassenger(w http.ResponseWriter, r *http.Request) {
+	
+	var message PassengerMessage
+	if err:=json.NewDecoder(r.Body).Decode(&message); err !=nil {
+		http.Error(w, "Invalid Input", http.StatusBadRequest)
+		return
+	}
+
+	claims, ok := r.Context().Value("claims").(*models.Claims)
+	if !ok {
+		utils.RespondError(w, http.StatusUnauthorized, "Invalid claims")
+		return
+	}
+
+	passenger_id := claims.UserID
+
+	query := "INSERT INTO passenger_messages (passenger_id, message) VALUES (?, ?)"
+	_, err := h.DB.Exec(query, passenger_id, message.Message)
+	if err != nil {
+		http.Error(w, "Failed to create a place", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message":"successfully created",
+	})
+}
+
+type PasMessage struct {
+	ID int `json:"id"`
+	PassengerID int `json:"passenger_id"`
+	FullName string `json:"full_name"`
+	Phone string `json:"phone"`
+	Message string `json:"message"`
+}
+
+// GetAllPassengerMessage handles GET /protected/passenger-messages
+// @Summary Get all passenger-messages
+// @Description Retrieve all passenger-messages
+// @Tags Message
+// @Produce json
+// @Security BearerAuth
+// @Router /protected/passenger-messages [get]
+func (h *App) GetAllPassengerMessage(w http.ResponseWriter, r *http.Request) {
+
+	rows, err := h.DB.Query(`SELECT id, passenger_id, full_name, phone, message  
+								FROM passenger_messages_full `)
+
+	if err != nil {
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+
+	defer rows.Close()
+    
+	var passenger_messages []PasMessage = []PasMessage{}
+
+	for rows.Next() {
+		var message PasMessage
+		if err := rows.Scan(&message.ID, &message.PassengerID, &message.FullName, 
+			&message.Phone, &message.Message); err != nil {
+			fmt.Println(err)
+			http.Error(w, "Server error", http.StatusInternalServerError)
+			return
+		}
+
+		passenger_messages = append(passenger_messages, message)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(passenger_messages)
+}
+
+
+
+type TaxistMessage struct {
+	Message string `json:"message"`
+}
+
+
+//CreateMessageTaxist handles POST /protected/taxist-message
+// @Summary POST a taxist message
+// @Description add a taxist message
+// @Tags Message
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param body body TaxistMessage true "Message"
+// @Router /protected/taxist-message [post]
+func (h *App) CreateMessageTaxist(w http.ResponseWriter, r *http.Request) {
+	var message TaxistMessage
+	if err:=json.NewDecoder(r.Body).Decode(&message); err !=nil {
+		http.Error(w, "Invalid Input", http.StatusBadRequest)
+		return
+	}
+
+	claims, ok := r.Context().Value("claims").(*models.Claims)
+	if !ok {
+		utils.RespondError(w, http.StatusUnauthorized, "Invalid claims")
+		return
+	}
+
+	taxist_id := claims.UserID
+
+	query := "INSERT INTO taxist_messages (taxist_id, message) VALUES (?, ?)"
+	_, err := h.DB.Exec(query, taxist_id, message.Message)
+	if err != nil {
+		http.Error(w, "Failed to create a place", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message":"successfully created",
+	})
+}
+
+type TaxMessage struct {
+	ID int `json:"id"`
+	TaxistID int `json:"taxist_id"`
+	FullName string `json:"full_name"`
+	Phone string `json:"phone"`
+	Message string `json:"message"`
+}
+
+// GetAllTaxistMessage handles GET /protected/taxist-messages
+// @Summary Get all taxist-messages
+// @Description Retrieve all taxist-messages
+// @Tags Message
+// @Produce json
+// @Security BearerAuth
+// @Router /protected/taxist-messages [get]
+func (h *App) GetAllTaxistMessage(w http.ResponseWriter, r *http.Request) {
+
+	rows, err := h.DB.Query(`SELECT id, taxist_id, full_name, phone, message  
+								FROM taxist_messages_full `)
+
+	if err != nil {
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+
+	defer rows.Close()
+    
+	var taxist_messages []TaxMessage = []TaxMessage{}
+
+	for rows.Next() {
+		var message TaxMessage
+		if err := rows.Scan(&message.ID, &message.TaxistID, &message.FullName, 
+			&message.Phone, &message.Message); err != nil {
+			fmt.Println(err)
+			http.Error(w, "Server error", http.StatusInternalServerError)
+			return
+		}
+
+		taxist_messages = append(taxist_messages, message)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(taxist_messages)
 }

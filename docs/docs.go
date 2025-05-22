@@ -411,6 +411,56 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/protected/passenger-message": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "add a passenger message",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Message"
+                ],
+                "summary": "POST a passenger message",
+                "parameters": [
+                    {
+                        "description": "Message",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PassengerMessage"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/passenger-messages": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all passenger-messages",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Message"
+                ],
+                "summary": "Get all passenger-messages",
+                "responses": {}
+            }
+        },
         "/protected/passenger-notifications": {
             "get": {
                 "security": [
@@ -697,6 +747,56 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
+                "responses": {}
+            }
+        },
+        "/protected/taxist-message": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "add a taxist message",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Message"
+                ],
+                "summary": "POST a taxist message",
+                "parameters": [
+                    {
+                        "description": "Message",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TaxistMessage"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/taxist-messages": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all taxist-messages",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Message"
+                ],
+                "summary": "Get all taxist-messages",
                 "responses": {}
             }
         },
@@ -1074,6 +1174,14 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.PassengerMessage": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "handlers.PassengerPeople": {
             "type": "object",
             "properties": {
@@ -1138,6 +1246,14 @@ const docTemplate = `{
                     }
                 },
                 "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.TaxistMessage": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }

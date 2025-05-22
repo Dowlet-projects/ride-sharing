@@ -86,7 +86,9 @@ func SetupRouter(db *sql.DB, cfg *config.Config) *mux.Router {
 	protected.HandleFunc("/makes/{id}", app.DeleteMake).Methods("DELETE", "OPTIONS")
 	protected.HandleFunc("/models/{model_id}", app.DeleteModel).Methods("DELETE", "OPTIONS")
 	protected.HandleFunc("/passenger-message", app.CreateMessagePassenger).Methods("POST", "OPTIONS")
-	
+	protected.HandleFunc("/passenger-messages", app.GetAllPassengerMessage).Methods("GET", "OPTIONS")
+	protected.HandleFunc("/taxist-message", app.CreateMessageTaxist).Methods("POST", "OPTIONS")
+	protected.HandleFunc("/taxist-messages", app.GetAllTaxistMessage).Methods("GET", "OPTIONS")
 	return router
 }
 
