@@ -1,13 +1,15 @@
 package handlers
 
 import (
-
-	"net/http"
 	"encoding/json"
-	"ride-sharing/models"
 	"fmt"
-	"github.com/gorilla/mux"
+	"net/http"
+	"ride-sharing/models"
 	"strconv"
+	"time"
+	"context"
+	"github.com/go-redis/redis/v8"
+	"github.com/gorilla/mux"
 )
 
 //CreateMake handles POST /makes
@@ -134,6 +136,27 @@ func (h *App) CreateModel(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(model)
 }
 
+// rows, err := h.DB.Query("SELECT id, name, make_id FROM car_models WHERE make_id = ?", id)
+
+// if err != nil {
+	// 	http.Error(w, "Server error", http.StatusInternalServerError)
+	// 	return
+	// }
+	
+	// defer rows.Close()
+	// var modelss []models.Model = []models.Model{} 
+	// for rows.Next() {
+		// 	var model models.Model
+		// 	if err:=rows.Scan(&model.ID, &model.Name, &model.MakeID); err != nil {
+// 		http.Error(w, "Server error", http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	modelss = append(modelss, model)
+// }
+
+
+// Redis code.
 
 
 // GetAllModelsById handles GET /models/{make_id}
@@ -146,7 +169,8 @@ func (h *App) CreateModel(w http.ResponseWriter, r *http.Request) {
 func (h *App) GetAllModelsById(w http.ResponseWriter, r *http.Request) {
 	
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["make_id"])
+	// id, err := strconv.Atoi(vars["make_id"])
+	id, err := strconv.ParseInt(vars["make_id"], 10, 64)
 
 	if err != nil {
 		http.Error(w, "Invalid ID", http.StatusBadRequest)
@@ -154,28 +178,114 @@ func (h *App) GetAllModelsById(w http.ResponseWriter, r *http.Request) {
 	}
 
 
+
+	modelss, err := h.getCachedModels(id)
+	
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to fetch models: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	if modelss == nil {
+		http.Error(w, "models not found", http.StatusNotFound)
+		return
+	}
+
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(modelss); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
+}
+
+
+const (
+	redisAddr = "127.0.0.1:6379"
+	ttl = 3600 * time.Second  // Cache ttl (e.g, 1 hour)
+)
+
+// getCachedModels retrieves an models from Redis by make_id, with fallback to getModels
+func (h *App) getCachedModels(id int64) (*[]models.Model, error) {
+
+	rdb := redis.NewClient(&redis.Options {
+		Addr: redisAddr,
+		Password: "",
+		DB: 0,
+	})
+
+	defer rdb.Close()
+
+	ctx := context.Background()
+	key := fmt.Sprintf("models:make_%d", id)
+
+	jsonStr, err := rdb.Get(ctx, key).Result()
+	if err==redis.Nil {
+		// Cache, miss, fetch from Mysql
+		models, err := h.getModels(id)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch model %w", err)
+		}
+
+		if models == nil {
+			return nil, nil
+		}
+
+		jsonBytes, err := json.Marshal(models)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal model to JSON %w", err)
+		}
+
+		err = rdb.SetEX(ctx, key, jsonBytes, ttl).Err()
+		if err != nil {
+			return nil, fmt.Errorf("failed to cache model in Redis: %w", err)
+		}
+
+		return models, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get model from Redis: %w", err)
+	}
+
+	var models []models.Model
+	
+	if err := json.Unmarshal([]byte(jsonStr), &models); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal article JSON: %w", err)
+	}
+
+	return &models, nil
+
+}
+
+// getModels fetches a models from database by make_id
+func (h *App) getModels(id int64) (*[]models.Model, error) {
 	rows, err := h.DB.Query("SELECT id, name, make_id FROM car_models WHERE make_id = ?", id)
 
 	if err != nil {
-		http.Error(w, "Server error", http.StatusInternalServerError)
-		return
+		return nil, fmt.Errorf("failed to connect to Mysql %w", err)
 	}
 	
 	defer rows.Close()
+	
 	var modelss []models.Model = []models.Model{} 
 	for rows.Next() {
 		var model models.Model
 		if err:=rows.Scan(&model.ID, &model.Name, &model.MakeID); err != nil {
-			http.Error(w, "Server error", http.StatusInternalServerError)
-			return
+			return nil, fmt.Errorf("server error: %w", err)
 		}
 
 		modelss = append(modelss, model)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(modelss)
+	return &modelss, nil
 }
+
+
+
+
 
 // DeleteModel handles DELETE /models/{model_id}
 // @Summary DELETE model
