@@ -445,3 +445,151 @@ func (h *App) GetUgurById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ugur)
 }
+
+type PutTaxistAnnouncement struct {
+	DepartDate string `json:"depart_date"`
+	DepartTime string `json:"depart_time"`
+	FromPlaceID int `json:"from_place"`
+	ToPlaceID int `json:"to_place"`
+	Type models.AnnouncementType `json:"type"` //person, package and person or package
+}
+
+
+// UpdateTaxistAnnouncements
+// @Summary Update taxist announcement update
+// @Description Updates a taxist's announcement update by taxi_ann_id
+// @Tags Announcement
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param taxi_ann_id path int true "Announcement ID"
+// @Param body body PutTaxistAnnouncement true "Complete announcement to update"
+// @Router /protected/taxist-announcement/{taxi_ann_id} [put]
+func (h *App) UpdateTaxistAnnouncementsFull(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["taxi_ann_id"])
+	if err != nil {
+		http.Error(w, "Invalid taxi announcement ID", http.StatusBadRequest)
+		return
+	}
+	
+	claims, ok := r.Context().Value("claims").(*models.Claims)
+	if !ok {
+		utils.RespondError(w, http.StatusUnauthorized, "Invalid claims")
+		return
+	}
+
+	taxist_id := claims.UserID;
+
+	 // Check if user exists
+    var exists bool
+    err2 := h.DB.QueryRow(`SELECT 
+		EXISTS(SELECT 1 FROM taxist_announcements WHERE id = ?)`, id).Scan(&exists)
+    if err2 != nil || !exists {
+        http.Error(w, `{"error": "User not found"}`, http.StatusNotFound)
+        return
+    }
+
+
+	var input PutTaxistAnnouncement
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, `{"error":"Invalid input"}`, http.StatusNotFound)
+		return
+	}
+
+	if input.DepartDate == "" || input.DepartTime == "" || input.FromPlaceID == 0 ||
+	  input.ToPlaceID == 0 || input.Type == "" {
+		http.Error(w, `{"error":"All fields are required"}`, http.StatusBadRequest)
+		return
+	}
+
+
+
+	query := `UPDATE taxist_announcements SET 
+	depart_date = ?,
+	depart_time = ?,
+	from_place = ?,
+	to_place = ?,
+	type = ? 
+	WHERE taxist_id = ? AND id = ?`
+
+	args := []interface{}{
+		input.DepartDate,
+		input.DepartTime,
+		input.FromPlaceID,
+		input.ToPlaceID,
+		input.Type,
+		taxist_id,
+		id,
+	}
+
+	fmt.Println(args)
+	result, err := h.DB.Exec(query, args...)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Failed to update taxist announcement", http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		http.Error(w, "Error checking update", http.StatusInternalServerError)
+		return
+	}
+
+	if rowsAffected == 0 {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message":"successfully updated",
+	})
+}
+
+
+// DeleteTaxistAnnouncement handles DELETE /protected/taxist-announcement/{taxi_ann_id}
+// @Summary DELETE taxist Announcement
+// @Description DELETE taxist announcement by taxi_ann_id
+// @Tags Announcement
+// @Produce json
+// @Security BearerAuth
+// @Param taxi_ann_id path string true "Taxist announcement ID"
+// @Router /protected/taxist-announcement/{taxi_ann_id} [DELETE]
+func (h *App) DeleteTaxistAnnouncement(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["taxi_ann_id"])
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	claims, ok := r.Context().Value("claims").(*models.Claims)
+	if !ok {
+		utils.RespondError(w, http.StatusUnauthorized, "Invalid claims")
+		return
+	}
+
+	taxist_id := claims.UserID;
+
+	query := "DELETE FROM taxist_announcements WHERE id = ? AND taxist_id = ? "
+	result, err := h.DB.Exec(query, id, taxist_id)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "failed to delete taxist announcement because of relation or another error", http.StatusInternalServerError)
+		return
+	}
+	
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		http.Error(w, "taxist announcement not found", http.StatusNotFound)
+		return
+	}
+	
+	w.WriteHeader(http.StatusNoContent)
+}
+
+
+

@@ -405,6 +405,32 @@
                 "responses": {}
             }
         },
+        "/protected/passenger-department": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all passenger departments",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Get all specific passenger departments",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "isDeparted (default: 0)",
+                        "name": "departed",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/protected/passenger-message": {
             "post": {
                 "security": [
@@ -470,6 +496,38 @@
                     "Announcement"
                 ],
                 "summary": "Get all specific passenger notifications",
+                "responses": {}
+            }
+        },
+        "/protected/passenger-profile": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Fully update passenger profile fields",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Update passenger profile",
+                "parameters": [
+                    {
+                        "description": "Complete profile to update",
+                        "name": "profile",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PutInputPassenger"
+                        }
+                    }
+                ],
                 "responses": {}
             }
         },
@@ -616,6 +674,70 @@
                         "type": "string",
                         "description": "Reverse ID",
                         "name": "reverse_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/taxist-announcement/{taxi_ann_id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates a taxist's announcement update by taxi_ann_id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Update taxist announcement update",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Announcement ID",
+                        "name": "taxi_ann_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Complete announcement to update",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PutTaxistAnnouncement"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "DELETE taxist announcement by taxi_ann_id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "DELETE taxist Announcement",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Taxist announcement ID",
+                        "name": "taxi_ann_id",
                         "in": "path",
                         "required": true
                     }
@@ -839,6 +961,38 @@
                 "responses": {}
             }
         },
+        "/protected/taxist-profile": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Fully update taxist profile fields",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcement"
+                ],
+                "summary": "Update taxist profile",
+                "parameters": [
+                    {
+                        "description": "Complete profile to update",
+                        "name": "profile",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PutInput"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/protected/taxist-rating/{taxist_id}": {
             "put": {
                 "security": [
@@ -1032,6 +1186,58 @@
                         "required": true
                     }
                 ],
+                "responses": {}
+            }
+        },
+        "/protected/ws/passenger": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upgrades an HTTP connection to a WebSocket connection for a passenger to receive nearby taxists. Requires Bearer token authentication. Expects query parameters lat and long for initial passenger location.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WebSocket"
+                ],
+                "summary": "Establish WebSocket connection for passenger",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Passenger's latitude",
+                        "name": "lat",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Passenger's longitude",
+                        "name": "long",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/ws/taxist": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upgrades an HTTP connection to a WebSocket connection for a taxist to send location updates. Requires Bearer token authentication. Expects WebSocket messages with type \"location\" and data containing latitude and longitude.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WebSocket"
+                ],
+                "summary": "Establish WebSocket connection for taxist",
                 "responses": {}
             }
         },
@@ -1241,6 +1447,59 @@
                 },
                 "phone": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.PutInput": {
+            "type": "object",
+            "properties": {
+                "car_make": {
+                    "type": "string"
+                },
+                "car_model": {
+                    "type": "string"
+                },
+                "car_number": {
+                    "type": "string"
+                },
+                "car_year": {
+                    "type": "integer"
+                },
+                "full_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.PutInputPassenger": {
+            "type": "object",
+            "properties": {
+                "full_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.PutTaxistAnnouncement": {
+            "type": "object",
+            "properties": {
+                "depart_date": {
+                    "type": "string"
+                },
+                "depart_time": {
+                    "type": "string"
+                },
+                "from_place": {
+                    "type": "integer"
+                },
+                "to_place": {
+                    "type": "integer"
+                },
+                "type": {
+                    "description": "person, package and person or package",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.AnnouncementType"
+                        }
+                    ]
                 }
             }
         },

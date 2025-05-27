@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 22, 2025 at 07:58 PM
+-- Generation Time: May 27, 2025 at 08:44 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -174,8 +174,33 @@ INSERT INTO `passengers` (`id`, `full_name`, `phone`, `created_at`) VALUES
 (12, 'John1 Doe', '+12345678902341', '2025-05-10 10:19:26'),
 (13, 'John12 Doe', '+99361644115123', '2025-05-10 10:26:39'),
 (14, 'John2 Doe', '+12345678900', '2025-05-13 23:54:52'),
-(15, 'begenc', '+99364646464', '2025-05-16 07:04:33'),
+(15, 'Begunya', '+99364646464', '2025-05-27 15:53:17'),
 (16, 'begenc', '+99364676869', '2025-05-21 11:44:32');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `passenger_isdeparted`
+-- (See below for the actual view)
+--
+CREATE TABLE `passenger_isdeparted` (
+`taxi_ann_id` int(11)
+,`who_reserved` int(11)
+,`car_make` varchar(100)
+,`car_model` varchar(100)
+,`car_year` int(11)
+,`car_number` varchar(50)
+,`rating` decimal(10,1)
+,`depart_date` date
+,`depart_time` time
+,`from_place` varchar(50)
+,`to_place` varchar(50)
+,`full_space` int(11)
+,`space` int(11)
+,`distance` int(11)
+,`type` enum('person','package','person_and_package')
+,`departed` tinyint(1)
+);
 
 -- --------------------------------------------------------
 
@@ -436,7 +461,7 @@ INSERT INTO `taxists` (`id`, `full_name`, `phone`, `car_make`, `car_model`, `car
 (14, 'begenc', '+99361644114', 'Toyota', 'Camry', 2000, 'AB7689LB', 0.0, '2025-05-10 07:44:25'),
 (15, 'begenc', '+99361644113', 'Toyota', 'Camry', 2000, 'AB7689LB', 0.0, '2025-05-10 07:45:31'),
 (16, 'begenc', '+99361616161', 'Toyota', 'Camry', 2000, 'AG9898LB', 0.0, '2025-05-10 07:47:49'),
-(17, 'Begenc', '+993666666666', 'Toyota', 'Camry', 2000, 'AB1276LN', 4.0, '2025-05-14 18:38:26'),
+(17, 'Begunya', '+993666666666', 'Toyota', 'Avalon', 2021, 'AB1276LN', 4.0, '2025-05-27 15:33:21'),
 (18, 'begenx', '+99361644110', 'Toyota', 'Camry', 2000, 'AB7687LB', 0.0, '2025-05-16 03:03:53');
 
 --
@@ -472,14 +497,15 @@ CREATE TABLE `taxist_announcements` (
 --
 
 INSERT INTO `taxist_announcements` (`id`, `taxist_id`, `depart_date`, `depart_time`, `from_place`, `to_place`, `full_space`, `space`, `distance`, `type`, `departed`) VALUES
-(16, 17, '2025-05-13', '03:21:01', 2, 1, 4, 1, 400, 'person', 1),
+(16, 17, '2025-01-01', '15:30:00', 1, 2, 4, 1, 400, 'person', 1),
 (17, 17, '2025-05-13', '22:22:19', 3, 2, 4, 1, 500, 'person', 0),
-(18, 17, '2025-05-13', '22:22:19', 3, 2, 4, 3, 500, 'person', 0),
 (19, 17, '2025-05-13', '03:39:45', 2, 1, 4, -2, 400, 'person', 0),
 (20, 17, '2025-05-14', '14:26:18', 1, 3, 4, 2, 600, 'person_and_package', 0),
 (21, 17, '2025-05-14', '14:26:18', 1, 3, 4, 3, 600, 'person_and_package', 0),
 (22, 17, '2025-05-14', '14:38:37', 3, 2, 4, 3, 500, 'person', 0),
-(23, 18, '2025-05-16', '21:48:18', 2, 1, 4, 3, 400, 'person', 0);
+(25, 15, '2025-01-01', '15:30:00', 1, 2, 4, 4, 400, 'person', 0),
+(26, 13, '2025-05-27', '21:46:58', 2, 1, 3, 3, 400, 'person', 0),
+(27, 13, '2025-05-27', '22:47:59', 2, 1, 6, 6, 400, 'person', 0);
 
 --
 -- Triggers `taxist_announcements`
@@ -701,6 +727,15 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 -- --------------------------------------------------------
 
 --
+-- Structure for view `passenger_isdeparted`
+--
+DROP TABLE IF EXISTS `passenger_isdeparted`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `passenger_isdeparted`  AS SELECT `rp`.`taxi_ann_id` AS `taxi_ann_id`, `rp`.`who_reserved` AS `who_reserved`, `t`.`car_make` AS `car_make`, `t`.`car_model` AS `car_model`, `t`.`car_year` AS `car_year`, `t`.`car_number` AS `car_number`, `t`.`rating` AS `rating`, `ta`.`depart_date` AS `depart_date`, `ta`.`depart_time` AS `depart_time`, `fplace`.`name` AS `from_place`, `tplace`.`name` AS `to_place`, `ta`.`full_space` AS `full_space`, `ta`.`space` AS `space`, `ta`.`distance` AS `distance`, `ta`.`type` AS `type`, `ta`.`departed` AS `departed` FROM ((((`reserve_passengers` `rp` join `taxist_announcements` `ta` on(`rp`.`taxi_ann_id` = `ta`.`id`)) join `taxists` `t` on(`ta`.`taxist_id` = `t`.`id`)) join `places` `fplace` on(`ta`.`from_place` = `fplace`.`id`)) join `places` `tplace` on(`ta`.`to_place` = `tplace`.`id`)) ;
+
+-- --------------------------------------------------------
+
+--
 -- Structure for view `passenger_messages_full`
 --
 DROP TABLE IF EXISTS `passenger_messages_full`;
@@ -833,8 +868,8 @@ ALTER TABLE `reserve_packages`
 --
 ALTER TABLE `reserve_passengers`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `reserve_passengers_ibfk_1` (`taxi_ann_id`),
-  ADD KEY `reserve_passengers_ibfk_2` (`who_reserved`);
+  ADD KEY `reserve_passengers_ibfk_2` (`who_reserved`),
+  ADD KEY `reserve_passengers_ibfk_1` (`taxi_ann_id`);
 
 --
 -- Indexes for table `reserve_passengers_people`
@@ -855,9 +890,9 @@ ALTER TABLE `taxists`
 --
 ALTER TABLE `taxist_announcements`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `taxist_id` (`taxist_id`),
-  ADD KEY `from_place` (`from_place`),
-  ADD KEY `to_place` (`to_place`);
+  ADD KEY `taxist_announcements_ibfk_1` (`taxist_id`),
+  ADD KEY `taxist_announcements_ibfk_2` (`from_place`),
+  ADD KEY `taxist_announcements_ibfk_3` (`to_place`);
 
 --
 -- Indexes for table `taxist_comments`
@@ -960,7 +995,7 @@ ALTER TABLE `taxists`
 -- AUTO_INCREMENT for table `taxist_announcements`
 --
 ALTER TABLE `taxist_announcements`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `taxist_comments`
@@ -1014,13 +1049,13 @@ ALTER TABLE `rating_taxist`
 --
 ALTER TABLE `reserve_packages`
   ADD CONSTRAINT `reserve_packages_ibfk_1` FOREIGN KEY (`who_reserved`) REFERENCES `passengers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `reserve_packages_ibfk_2` FOREIGN KEY (`taxi_ann_id`) REFERENCES `taxist_announcements` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `reserve_packages_ibfk_2` FOREIGN KEY (`taxi_ann_id`) REFERENCES `taxist_announcements` (`id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `reserve_passengers`
 --
 ALTER TABLE `reserve_passengers`
-  ADD CONSTRAINT `reserve_passengers_ibfk_1` FOREIGN KEY (`taxi_ann_id`) REFERENCES `taxist_announcements` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `reserve_passengers_ibfk_1` FOREIGN KEY (`taxi_ann_id`) REFERENCES `taxist_announcements` (`id`) ON UPDATE CASCADE,
   ADD CONSTRAINT `reserve_passengers_ibfk_2` FOREIGN KEY (`who_reserved`) REFERENCES `passengers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
@@ -1033,9 +1068,9 @@ ALTER TABLE `reserve_passengers_people`
 -- Constraints for table `taxist_announcements`
 --
 ALTER TABLE `taxist_announcements`
-  ADD CONSTRAINT `taxist_announcements_ibfk_1` FOREIGN KEY (`taxist_id`) REFERENCES `taxists` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `taxist_announcements_ibfk_2` FOREIGN KEY (`from_place`) REFERENCES `places` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `taxist_announcements_ibfk_3` FOREIGN KEY (`to_place`) REFERENCES `places` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `taxist_announcements_ibfk_1` FOREIGN KEY (`taxist_id`) REFERENCES `taxists` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `taxist_announcements_ibfk_2` FOREIGN KEY (`from_place`) REFERENCES `places` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `taxist_announcements_ibfk_3` FOREIGN KEY (`to_place`) REFERENCES `places` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `taxist_comments`

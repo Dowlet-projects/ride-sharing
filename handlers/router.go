@@ -5,7 +5,7 @@ import (
 	//"net/http"
 
 	"ride-sharing/config"
-
+	
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
@@ -57,10 +57,11 @@ func SetupRouter(db *sql.DB, cfg *config.Config) *mux.Router {
 	router.HandleFunc("/places", app.CreatePlace).Methods("POST", "OPTIONS")
 	router.HandleFunc("/distances", app.createDistance).Methods("POST", "OPTIONS")
 	router.HandleFunc("/distances", app.GetAllDistances).Methods("GET", "OPTIONS")
-
+    
 	// Protected routes
 	protected := router.PathPrefix("/protected").Subrouter()
 	protected.Use(app.authMiddleware)
+	
 	protected.HandleFunc("", app.handleProtected).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/announcements", app.CreateAnnouncement).Methods("POST", "OPTIONS")
 	protected.HandleFunc("/ugurlar", app.GetAllUgurlar).Methods("GET", "OPTIONS")
@@ -72,6 +73,8 @@ func SetupRouter(db *sql.DB, cfg *config.Config) *mux.Router {
 	protected.HandleFunc("/taxist-comments/{taxist_id}", app.GetAllTaxistComments).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/taxist-comments/{taxist_id}", app.CreateComment).Methods("POST", "OPTIONS")
 	protected.HandleFunc("/profile", app.Profile).Methods("GET", "OPTIONS")
+	protected.HandleFunc("/taxist-profile", app.PutUser).Methods("PUT", "OPTIONS")
+	protected.HandleFunc("/passenger-profile", app.PutUserPassenger).Methods("PUT", "OPTIONS")
 	protected.HandleFunc("/taxist-notifications", app.GetAllTaxistNotifications).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/taxist-notifications/{not_id}", app.GetNotificationById).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/passenger-notifications", app.GetAllPassengerNotifications).Methods("GET","OPTIONS")
@@ -81,6 +84,7 @@ func SetupRouter(db *sql.DB, cfg *config.Config) *mux.Router {
 	protected.HandleFunc("/taxists", app.GetAllTaxists).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/taxist-departed/{taxi_ann_id}", app.UpdateTaxistAnnouncements).Methods("PUT", "OPTIONS")
 	protected.HandleFunc("/taxist-announcements/{departed}", app.GetTaxistAnnouncements).Methods("GET", "OPTIONS")
+	protected.HandleFunc("/taxist-announcement/{taxi_ann_id}",app.UpdateTaxistAnnouncementsFull).Methods("PUT", "OPTIONS")
 	protected.HandleFunc("/distances/{id}", app.DeleteDistances).Methods("DELETE", "OPTIONS")
 	protected.HandleFunc("/places/{id}", app.DeletePlace).Methods("DELETE", "OPTIONS")
 	protected.HandleFunc("/makes/{id}", app.DeleteMake).Methods("DELETE", "OPTIONS")
@@ -89,6 +93,16 @@ func SetupRouter(db *sql.DB, cfg *config.Config) *mux.Router {
 	protected.HandleFunc("/passenger-messages", app.GetAllPassengerMessage).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/taxist-message", app.CreateMessageTaxist).Methods("POST", "OPTIONS")
 	protected.HandleFunc("/taxist-messages", app.GetAllTaxistMessage).Methods("GET", "OPTIONS")
+	protected.HandleFunc("/passenger-department", app.GetAllPassengerDeparted).Methods("GET", "OPTIONS")
+	protected.HandleFunc("/ws/taxist", app.HandleTaxistConnection).Methods("GET", "OPTIONS")
+	protected.HandleFunc("/ws/passenger", app.HandlePassengerConnection).Methods("GET", "OPTIONS")
+	protected.HandleFunc("/taxist-announcement/{taxi_ann_id}", app.DeleteTaxistAnnouncement).Methods("DELETE", "OPTIONS")
+	// protected.HandleFunc("/ride-request", app.HandlePassengerRideRequest).Methods("POST")
+	// protected.HandleFunc("/accept-ride", app.HandleTaxistAccept).Methods("POST")
 	return router
 }
+
+
+
+
 

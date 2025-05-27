@@ -84,6 +84,39 @@ definitions:
     - passengers
     - phone
     type: object
+  handlers.PutInput:
+    properties:
+      car_make:
+        type: string
+      car_model:
+        type: string
+      car_number:
+        type: string
+      car_year:
+        type: integer
+      full_name:
+        type: string
+    type: object
+  handlers.PutInputPassenger:
+    properties:
+      full_name:
+        type: string
+    type: object
+  handlers.PutTaxistAnnouncement:
+    properties:
+      depart_date:
+        type: string
+      depart_time:
+        type: string
+      from_place:
+        type: integer
+      to_place:
+        type: integer
+      type:
+        allOf:
+        - $ref: '#/definitions/models.AnnouncementType'
+        description: person, package and person or package
+    type: object
   handlers.TaxistMessage:
     properties:
       message:
@@ -478,6 +511,22 @@ paths:
       summary: DELETE model
       tags:
       - Car details
+  /protected/passenger-department:
+    get:
+      description: Retrieve all passenger departments
+      parameters:
+      - description: 'isDeparted (default: 0)'
+        in: query
+        name: departed
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get all specific passenger departments
+      tags:
+      - Announcement
   /protected/passenger-message:
     post:
       consumes:
@@ -518,6 +567,26 @@ paths:
       security:
       - BearerAuth: []
       summary: Get all specific passenger notifications
+      tags:
+      - Announcement
+  /protected/passenger-profile:
+    put:
+      consumes:
+      - application/json
+      description: Fully update passenger profile fields
+      parameters:
+      - description: Complete profile to update
+        in: body
+        name: profile
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PutInputPassenger'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Update passenger profile
       tags:
       - Announcement
   /protected/places/{id}:
@@ -613,6 +682,47 @@ paths:
       security:
       - BearerAuth: []
       summary: Get all specific taxist reversed Details by reverse_id
+      tags:
+      - Announcement
+  /protected/taxist-announcement/{taxi_ann_id}:
+    delete:
+      description: DELETE taxist announcement by taxi_ann_id
+      parameters:
+      - description: Taxist announcement ID
+        in: path
+        name: taxi_ann_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: DELETE taxist Announcement
+      tags:
+      - Announcement
+    put:
+      consumes:
+      - application/json
+      description: Updates a taxist's announcement update by taxi_ann_id
+      parameters:
+      - description: Announcement ID
+        in: path
+        name: taxi_ann_id
+        required: true
+        type: integer
+      - description: Complete announcement to update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PutTaxistAnnouncement'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Update taxist announcement update
       tags:
       - Announcement
   /protected/taxist-announcements/{departed}:
@@ -751,6 +861,26 @@ paths:
       summary: Get notification by not_id
       tags:
       - Announcement
+  /protected/taxist-profile:
+    put:
+      consumes:
+      - application/json
+      description: Fully update taxist profile fields
+      parameters:
+      - description: Complete profile to update
+        in: body
+        name: profile
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PutInput'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Update taxist profile
+      tags:
+      - Announcement
   /protected/taxist-rating/{taxist_id}:
     put:
       consumes:
@@ -879,6 +1009,43 @@ paths:
       summary: Get ugur by ugur_id
       tags:
       - Announcement
+  /protected/ws/passenger:
+    get:
+      description: Upgrades an HTTP connection to a WebSocket connection for a passenger
+        to receive nearby taxists. Requires Bearer token authentication. Expects query
+        parameters lat and long for initial passenger location.
+      parameters:
+      - description: Passenger's latitude
+        in: query
+        name: lat
+        required: true
+        type: number
+      - description: Passenger's longitude
+        in: query
+        name: long
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Establish WebSocket connection for passenger
+      tags:
+      - WebSocket
+  /protected/ws/taxist:
+    get:
+      description: Upgrades an HTTP connection to a WebSocket connection for a taxist
+        to send location updates. Requires Bearer token authentication. Expects WebSocket
+        messages with type "location" and data containing latitude and longitude.
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Establish WebSocket connection for taxist
+      tags:
+      - WebSocket
   /taxist/login:
     post:
       consumes:

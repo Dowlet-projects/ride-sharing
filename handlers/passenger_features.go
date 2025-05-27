@@ -221,3 +221,87 @@ func (h *App) GetAllFavourites(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(halanlarym)
 }
+
+
+
+type PassengerDepart struct {
+	TaxiAnnID int `json:"taxi_ann_id"`
+	WhoReserved int `json:"who_reserved"`
+	CarMake string `json:"car_make"`
+	CarModel string `json:"car_model"`
+	CarYear string `json:"car_year"`
+	CarNumber string `json:"car_number"`
+	Rating float64 `json:"rating"`
+	DepartDate string `json:"depart_date"`
+	DepartTime string `json:"depart_time"`
+	FromPlace string `json:"from_place"`
+	ToPlace string `json:"to_place"`
+	FullSpace int `json:"full_space"`
+	Space int `json:"space"`
+	Distance int `json:"distance"`
+	Type string `json:"type"`
+	Departed int `json:"departed"`
+}
+
+
+
+// GetAllPassengerDeparted handles GET /passenger-department
+// @Summary Get all specific passenger departments
+// @Description Retrieve all passenger departments
+// @Tags Announcement
+// @Produce json
+// @Security BearerAuth
+// @Param departed query int false "isDeparted (default: 0)" example=0
+// @Router /protected/passenger-department [get]
+func (h *App) GetAllPassengerDeparted(w http.ResponseWriter, r *http.Request) {
+	claims, ok := r.Context().Value("claims").(*models.Claims)
+	if !ok {
+		utils.RespondError(w, http.StatusUnauthorized, "Invalid claims")
+		return
+	}
+
+	departedStr := r.URL.Query().Get("departed")
+
+	// Parse and validate page
+	departed, err := strconv.Atoi(departedStr)
+	if err != nil || departed > 1 || departed < 0  {
+		departed = 0
+	}
+	
+	passenger_id := claims.UserID
+	rows, err := h.DB.Query(`SELECT taxi_ann_id, who_reserved, car_make, car_model,
+		car_year, car_number, rating, depart_date, depart_time, from_place, to_place,
+		full_space, space, distance, type, 
+		departed from passenger_isdeparted where who_reserved = ? AND departed = ? 
+	`, passenger_id, departed)
+
+	if err != nil {
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+
+	defer rows.Close()
+    
+	var passengerNots []PassengerDepart = []PassengerDepart{}
+
+	for rows.Next() {
+		var passengerDepart PassengerDepart
+		if err := rows.Scan(&passengerDepart.TaxiAnnID, &passengerDepart.WhoReserved,
+			 &passengerDepart.CarMake, &passengerDepart.CarModel, &passengerDepart.CarYear,
+			  &passengerDepart.CarNumber, &passengerDepart.Rating, &passengerDepart.DepartDate,
+			  &passengerDepart.DepartTime, &passengerDepart.FromPlace, &passengerDepart.ToPlace,
+			  &passengerDepart.FullSpace, &passengerDepart.Space, &passengerDepart.Distance,
+			&passengerDepart.Type, &passengerDepart.Departed,
+			  ); err != nil {
+			fmt.Println(err)
+			http.Error(w, "Server error", http.StatusInternalServerError)
+			return
+		}
+
+		passengerNots = append(passengerNots, passengerDepart)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(passengerNots)
+}
+
