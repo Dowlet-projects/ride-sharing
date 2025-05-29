@@ -1009,43 +1009,6 @@ paths:
       summary: Get ugur by ugur_id
       tags:
       - Announcement
-  /protected/ws/passenger:
-    get:
-      description: Upgrades an HTTP connection to a WebSocket connection for a passenger
-        to receive nearby taxists. Requires Bearer token authentication. Expects query
-        parameters lat and long for initial passenger location.
-      parameters:
-      - description: Passenger's latitude
-        in: query
-        name: lat
-        required: true
-        type: number
-      - description: Passenger's longitude
-        in: query
-        name: long
-        required: true
-        type: number
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - BearerAuth: []
-      summary: Establish WebSocket connection for passenger
-      tags:
-      - WebSocket
-  /protected/ws/taxist:
-    get:
-      description: Upgrades an HTTP connection to a WebSocket connection for a taxist
-        to send location updates. Requires Bearer token authentication. Expects WebSocket
-        messages with type "location" and data containing latitude and longitude.
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - BearerAuth: []
-      summary: Establish WebSocket connection for taxist
-      tags:
-      - WebSocket
   /taxist/login:
     post:
       consumes:

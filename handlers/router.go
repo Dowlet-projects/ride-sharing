@@ -97,6 +97,10 @@ func SetupRouter(db *sql.DB, cfg *config.Config) *mux.Router {
 	protected.HandleFunc("/ws/taxist", app.HandleTaxistConnection).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/ws/passenger", app.HandlePassengerConnection).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/taxist-announcement/{taxi_ann_id}", app.DeleteTaxistAnnouncement).Methods("DELETE", "OPTIONS")
+	protected.HandleFunc("/ws/taxist", app.HandleTaxistConnection).Methods("GET", "OPTIONS")
+	protected.HandleFunc("/ws/passenger", app.HandlePassengerConnection).Methods("GET", "OPTIONS")
+	protected.HandleFunc("/ride-request", app.HandlePassengerRideRequest).Methods("POST")
+	protected.HandleFunc("/accept-ride", app.HandleTaxistAccept).Methods("POST")
 	// protected.HandleFunc("/ride-request", app.HandlePassengerRideRequest).Methods("POST")
 	// protected.HandleFunc("/accept-ride", app.HandleTaxistAccept).Methods("POST")
 	return router

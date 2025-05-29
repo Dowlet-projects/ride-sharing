@@ -1189,58 +1189,6 @@
                 "responses": {}
             }
         },
-        "/protected/ws/passenger": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Upgrades an HTTP connection to a WebSocket connection for a passenger to receive nearby taxists. Requires Bearer token authentication. Expects query parameters lat and long for initial passenger location.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "WebSocket"
-                ],
-                "summary": "Establish WebSocket connection for passenger",
-                "parameters": [
-                    {
-                        "type": "number",
-                        "description": "Passenger's latitude",
-                        "name": "lat",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "number",
-                        "description": "Passenger's longitude",
-                        "name": "long",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/protected/ws/taxist": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Upgrades an HTTP connection to a WebSocket connection for a taxist to send location updates. Requires Bearer token authentication. Expects WebSocket messages with type \"location\" and data containing latitude and longitude.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "WebSocket"
-                ],
-                "summary": "Establish WebSocket connection for taxist",
-                "responses": {}
-            }
-        },
         "/taxist/login": {
             "post": {
                 "description": "Initiates login by sending a verification code to the taxist's phone number. Checks if the phone is registered and logs the code.",
