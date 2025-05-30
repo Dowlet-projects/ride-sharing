@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  handlers.DirectionPost:
+    properties:
+      desc_direction:
+        type: string
+      direction_name:
+        type: string
+    type: object
   handlers.Favourite:
     properties:
       taxist_id:
@@ -430,6 +437,77 @@ paths:
       summary: POST a new Ugur for taxist
       tags:
       - Announcement
+  /protected/directions:
+    get:
+      description: Retrieve all passenger directions
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get all specific passenger directions
+      tags:
+      - Direction passenger
+    post:
+      consumes:
+      - application/json
+      description: add a new passenger direction
+      parameters:
+      - description: Direction passenger
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DirectionPost'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: POST a new passenger direction
+      tags:
+      - Direction passenger
+  /protected/directions/{id}:
+    delete:
+      description: DELETE direction by id
+      parameters:
+      - description: Direction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: DELETE direction
+      tags:
+      - Direction passenger
+    put:
+      consumes:
+      - application/json
+      description: Updates a passenger's direction
+      parameters:
+      - description: Direction ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Complete direction to update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DirectionPost'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Update passenger direction
+      tags:
+      - Direction passenger
   /protected/distances/{id}:
     delete:
       description: DELETE distance by id

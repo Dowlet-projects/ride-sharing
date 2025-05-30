@@ -282,6 +282,118 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/protected/directions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all passenger directions",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Direction passenger"
+                ],
+                "summary": "Get all specific passenger directions",
+                "responses": {}
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "add a new passenger direction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Direction passenger"
+                ],
+                "summary": "POST a new passenger direction",
+                "parameters": [
+                    {
+                        "description": "Direction passenger",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DirectionPost"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/protected/directions/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates a passenger's direction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Direction passenger"
+                ],
+                "summary": "Update passenger direction",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Direction ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Complete direction to update",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DirectionPost"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "DELETE direction by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Direction passenger"
+                ],
+                "summary": "DELETE direction",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Direction ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/protected/distances/{id}": {
             "delete": {
                 "security": [
@@ -1279,6 +1391,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handlers.DirectionPost": {
+            "type": "object",
+            "properties": {
+                "desc_direction": {
+                    "type": "string"
+                },
+                "direction_name": {
+                    "type": "string"
+                }
+            }
+        },
         "handlers.Favourite": {
             "type": "object",
             "properties": {

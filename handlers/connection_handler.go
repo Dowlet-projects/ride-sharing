@@ -16,6 +16,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/websocket"
 	"googlemaps.github.io/maps"
+	"github.com/gorilla/mux"
 )
 
 // TaxistConn represents a taxi driver
@@ -620,3 +621,218 @@ func parseLocation(latStr, longStr string) (float64, float64, error) {
 	}
 	return lat, long, nil
 }
+
+
+type Direction struct {
+	ID int `json:"id"`
+	DirectionName string `json:"direction_name"`
+	DescDirection string `json:"desc_direction"`
+}
+
+// PassengerDirections handles /protected/directions GET
+// @Summary Get all specific passenger directions
+// @Description Retrieve all passenger directions
+// @Tags Direction passenger
+// @Produce json
+// @Security BearerAuth
+// @Router /protected/directions [get]
+func (h *App) GetAllDirections(w http.ResponseWriter, r *http.Request) {
+
+	claims, ok := r.Context().Value("claims").(*models.Claims)
+	if !ok {
+		utils.RespondError(w, http.StatusUnauthorized, "Invalid claims")
+		return
+	}
+
+	passenger_id := claims.UserID
+	rows, err := h.DB.Query(`SELECT id, direction, desc_direction from
+				directions where passenger_id = ?`, passenger_id)
+
+	if err != nil {
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+
+	defer rows.Close()
+	var directions []Direction = []Direction{}
+
+	for rows.Next() {
+		var direction Direction
+		if err := rows.Scan(&direction.ID, &direction.DirectionName, &direction.DescDirection); err != nil {
+			http.Error(w, "Server error", http.StatusInternalServerError)
+			return
+		}
+
+		directions = append(directions, direction)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(directions)
+
+}
+
+
+type DirectionPost struct {
+	DirectionName string `json:"direction_name"`
+	DescDirection string `json:"desc_direction"`
+}
+
+
+// CreateDirectionPassenger handles POST /protected/directions
+// @Summary POST a new passenger direction
+// @Description add a new passenger direction
+// @Tags Direction passenger
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param body body DirectionPost true "Direction passenger"
+// @Router /protected/directions [post]
+func (h *App) CreateDirectionPassenger(w http.ResponseWriter, r *http.Request) {
+	
+	var direction DirectionPost
+
+	if err := json.NewDecoder(r.Body).Decode(&direction); err != nil {
+		http.Error(w, "Invalid Input", http.StatusBadRequest)
+		return
+	}
+
+	claims, ok := r.Context().Value("claims").(*models.Claims)
+	if !ok {
+		utils.RespondError(w, http.StatusUnauthorized, "Invalid claims")
+		return
+	}
+
+	passenger_id := claims.UserID
+
+	query := "INSERT INTO directions (direction, passenger_id, desc_direction) VALUES (?, ?, ?)"
+	_, err := h.DB.Exec(query, direction.DirectionName, passenger_id, direction.DescDirection)
+
+	if err != nil {
+		http.Error(w, "Failed to add direction", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message":"successfully created",
+	})
+
+}
+
+
+
+// DeleteDirectionPassenger handles DELETE /directions/{id}
+// @Summary DELETE direction
+// @Description DELETE direction by id
+// @Tags Direction passenger
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Direction ID"
+// @Router /protected/directions/{id} [DELETE]
+func (h *App) DeleteDirectionPassenger(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	query := "DELETE FROM directions WHERE id = ? "
+	result, err := h.DB.Exec(query, id)
+	if err != nil {
+		http.Error(w, "Failed to delete direction", http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		http.Error(w, "direction not found", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// UpdateDirectionPassenger
+// @Summary Update passenger direction
+// @Description Updates a passenger's direction
+// @Tags Direction passenger
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Direction ID"
+// @Param body body DirectionPost true "Complete direction to update"
+// @Router /protected/directions/{id} [put]
+func (h *App) UpdateDirectionPassenger(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, "Invalid taxi announcement ID", http.StatusBadRequest)
+		return
+	}
+
+	claims, ok := r.Context().Value("claims").(*models.Claims)
+	if !ok {
+		utils.RespondError(w, http.StatusUnauthorized, "Invalid claims")
+		return
+	}
+
+	passenger_id := claims.UserID;
+
+	var exists bool
+	err = h.DB.QueryRow(`SELECT 
+		EXISTS(SELECT 1 FROM directions WHERE id = ? AND passenger_id = ? )
+	`, id, passenger_id).Scan(&exists)
+
+	if err != nil || !exists {
+		http.Error(w, `{"error": "direction not found"}`, http.StatusNotFound)
+		return
+	}
+
+	var input DirectionPost
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, `{"error":"Invalid input"}`, http.StatusNotFound)
+		return
+	}
+
+	if input.DirectionName == "" {
+		http.Error(w, `{"error":"All fields are required"}`, http.StatusBadRequest)
+		return
+	}
+
+	query := `UPDATE directions SET 
+		direction = ?, desc_direction = ? WHERE id = ? AND passenger_id = ?`
+	
+	args := []interface{}{
+		input.DirectionName,
+		input.DescDirection,
+		id,
+		passenger_id,
+	}
+
+	result, err := h.DB.Exec(query, args...)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Failed to update direction", http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		http.Error(w, "Error checking update", http.StatusInternalServerError)
+		return
+	}
+
+	if rowsAffected == 0 {
+		http.Error(w, "direction not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message":"successfully updated",
+	})
+}
+
